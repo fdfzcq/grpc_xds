@@ -2,29 +2,23 @@ defmodule Envoy.Extensions.Upstreams.Http.V4alpha.HttpProtocolOptions.ExplicitHt
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          protocol_config: {atom, any}
-        }
-  defstruct [:protocol_config]
-
   oneof(:protocol_config, 0)
   field(:http_protocol_options, 1, type: Envoy.Config.Core.V4alpha.Http1ProtocolOptions, oneof: 0)
 
-  field(:http2_protocol_options, 2, type: Envoy.Config.Core.V4alpha.Http2ProtocolOptions, oneof: 0)
+  field(:http2_protocol_options, 2,
+    type: Envoy.Config.Core.V4alpha.Http2ProtocolOptions,
+    oneof: 0
+  )
 
-  field(:http3_protocol_options, 3, type: Envoy.Config.Core.V4alpha.Http3ProtocolOptions, oneof: 0)
+  field(:http3_protocol_options, 3,
+    type: Envoy.Config.Core.V4alpha.Http3ProtocolOptions,
+    oneof: 0
+  )
 end
 
 defmodule Envoy.Extensions.Upstreams.Http.V4alpha.HttpProtocolOptions.UseDownstreamHttpConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          http_protocol_options: Envoy.Config.Core.V4alpha.Http1ProtocolOptions.t() | nil,
-          http2_protocol_options: Envoy.Config.Core.V4alpha.Http2ProtocolOptions.t() | nil,
-          http3_protocol_options: Envoy.Config.Core.V4alpha.Http3ProtocolOptions.t() | nil
-        }
-  defstruct [:http_protocol_options, :http2_protocol_options, :http3_protocol_options]
 
   field(:http_protocol_options, 1, type: Envoy.Config.Core.V4alpha.Http1ProtocolOptions)
   field(:http2_protocol_options, 2, type: Envoy.Config.Core.V4alpha.Http2ProtocolOptions)
@@ -35,12 +29,6 @@ defmodule Envoy.Extensions.Upstreams.Http.V4alpha.HttpProtocolOptions.AutoHttpCo
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          http_protocol_options: Envoy.Config.Core.V4alpha.Http1ProtocolOptions.t() | nil,
-          http2_protocol_options: Envoy.Config.Core.V4alpha.Http2ProtocolOptions.t() | nil
-        }
-  defstruct [:http_protocol_options, :http2_protocol_options]
-
   field(:http_protocol_options, 1, type: Envoy.Config.Core.V4alpha.Http1ProtocolOptions)
   field(:http2_protocol_options, 2, type: Envoy.Config.Core.V4alpha.Http2ProtocolOptions)
 end
@@ -48,18 +36,6 @@ end
 defmodule Envoy.Extensions.Upstreams.Http.V4alpha.HttpProtocolOptions do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          upstream_protocol_options: {atom, any},
-          common_http_protocol_options: Envoy.Config.Core.V4alpha.HttpProtocolOptions.t() | nil,
-          upstream_http_protocol_options:
-            Envoy.Config.Core.V4alpha.UpstreamHttpProtocolOptions.t() | nil
-        }
-  defstruct [
-    :upstream_protocol_options,
-    :common_http_protocol_options,
-    :upstream_http_protocol_options
-  ]
 
   oneof(:upstream_protocol_options, 0)
   field(:common_http_protocol_options, 1, type: Envoy.Config.Core.V4alpha.HttpProtocolOptions)

@@ -2,24 +2,12 @@ defmodule Envoy.Api.V2.Core.GrpcService.EnvoyGrpc do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          cluster_name: String.t()
-        }
-  defstruct [:cluster_name]
-
   field(:cluster_name, 1, type: :string)
 end
 
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.SslCredentials do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          root_certs: Envoy.Api.V2.Core.DataSource.t() | nil,
-          private_key: Envoy.Api.V2.Core.DataSource.t() | nil,
-          cert_chain: Envoy.Api.V2.Core.DataSource.t() | nil
-        }
-  defstruct [:root_certs, :private_key, :cert_chain]
 
   field(:root_certs, 1, type: Envoy.Api.V2.Core.DataSource)
   field(:private_key, 2, type: Envoy.Api.V2.Core.DataSource)
@@ -29,19 +17,11 @@ end
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.GoogleLocalCredentials do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.ChannelCredentials do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          credential_specifier: {atom, any}
-        }
-  defstruct [:credential_specifier]
 
   oneof(:credential_specifier, 0)
 
@@ -62,12 +42,6 @@ defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials.ServiceAccoun
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          json_key: String.t(),
-          token_lifetime_seconds: non_neg_integer
-        }
-  defstruct [:json_key, :token_lifetime_seconds]
-
   field(:json_key, 1, type: :string)
   field(:token_lifetime_seconds, 2, type: :uint64)
 end
@@ -76,12 +50,6 @@ defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials.GoogleIAMCred
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          authorization_token: String.t(),
-          authority_selector: String.t()
-        }
-  defstruct [:authorization_token, :authority_selector]
-
   field(:authorization_token, 1, type: :string)
   field(:authority_selector, 2, type: :string)
 end
@@ -89,12 +57,6 @@ end
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials.MetadataCredentialsFromPlugin do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
 
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
@@ -105,29 +67,6 @@ end
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials.StsService do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          token_exchange_service_uri: String.t(),
-          resource: String.t(),
-          audience: String.t(),
-          scope: String.t(),
-          requested_token_type: String.t(),
-          subject_token_path: String.t(),
-          subject_token_type: String.t(),
-          actor_token_path: String.t(),
-          actor_token_type: String.t()
-        }
-  defstruct [
-    :token_exchange_service_uri,
-    :resource,
-    :audience,
-    :scope,
-    :requested_token_type,
-    :subject_token_path,
-    :subject_token_type,
-    :actor_token_path,
-    :actor_token_type
-  ]
 
   field(:token_exchange_service_uri, 1, type: :string)
   field(:resource, 2, type: :string)
@@ -143,11 +82,6 @@ end
 defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          credential_specifier: {atom, any}
-        }
-  defstruct [:credential_specifier]
 
   oneof(:credential_specifier, 0)
   field(:access_token, 1, type: :string, oneof: 0)
@@ -180,27 +114,11 @@ defmodule Envoy.Api.V2.Core.GrpcService.GoogleGrpc do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          target_uri: String.t(),
-          channel_credentials:
-            Envoy.Api.V2.Core.GrpcService.GoogleGrpc.ChannelCredentials.t() | nil,
-          call_credentials: [Envoy.Api.V2.Core.GrpcService.GoogleGrpc.CallCredentials.t()],
-          stat_prefix: String.t(),
-          credentials_factory_name: String.t(),
-          config: Google.Protobuf.Struct.t() | nil
-        }
-  defstruct [
-    :target_uri,
-    :channel_credentials,
-    :call_credentials,
-    :stat_prefix,
-    :credentials_factory_name,
-    :config
-  ]
-
   field(:target_uri, 1, type: :string)
 
-  field(:channel_credentials, 2, type: Envoy.Api.V2.Core.GrpcService.GoogleGrpc.ChannelCredentials)
+  field(:channel_credentials, 2,
+    type: Envoy.Api.V2.Core.GrpcService.GoogleGrpc.ChannelCredentials
+  )
 
   field(:call_credentials, 3,
     repeated: true,
@@ -215,13 +133,6 @@ end
 defmodule Envoy.Api.V2.Core.GrpcService do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          target_specifier: {atom, any},
-          timeout: Google.Protobuf.Duration.t() | nil,
-          initial_metadata: [Envoy.Api.V2.Core.HeaderValue.t()]
-        }
-  defstruct [:target_specifier, :timeout, :initial_metadata]
 
   oneof(:target_specifier, 0)
   field(:envoy_grpc, 1, type: Envoy.Api.V2.Core.GrpcService.EnvoyGrpc, oneof: 0)

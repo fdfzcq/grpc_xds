@@ -2,8 +2,6 @@ defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsParameters.TlsProtoco
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :TLS_AUTO | :TLSv1_0 | :TLSv1_1 | :TLSv1_2 | :TLSv1_3
-
   field(:TLS_AUTO, 0)
   field(:TLSv1_0, 1)
   field(:TLSv1_1, 2)
@@ -15,8 +13,6 @@ defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.CertificateValidationCon
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :VERIFY_TRUST_CHAIN | :ACCEPT_UNTRUSTED
-
   field(:VERIFY_TRUST_CHAIN, 0)
   field(:ACCEPT_UNTRUSTED, 1)
 end
@@ -24,21 +20,6 @@ end
 defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsParameters do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          tls_minimum_protocol_version:
-            Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsParameters.TlsProtocol.t(),
-          tls_maximum_protocol_version:
-            Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsParameters.TlsProtocol.t(),
-          cipher_suites: [String.t()],
-          ecdh_curves: [String.t()]
-        }
-  defstruct [
-    :tls_minimum_protocol_version,
-    :tls_maximum_protocol_version,
-    :cipher_suites,
-    :ecdh_curves
-  ]
 
   field(:tls_minimum_protocol_version, 1,
     type: Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsParameters.TlsProtocol,
@@ -58,12 +39,6 @@ defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.PrivateKeyProvider do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          provider_name: String.t()
-        }
-  defstruct [:config_type, :provider_name]
-
   oneof(:config_type, 0)
   field(:provider_name, 1, type: :string)
   field(:typed_config, 3, type: Google.Protobuf.Any, oneof: 0)
@@ -72,26 +47,6 @@ end
 defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsCertificate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          certificate_chain: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          private_key: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          watched_directory: Envoy.Config.Core.V4alpha.WatchedDirectory.t() | nil,
-          private_key_provider:
-            Envoy.Extensions.TransportSockets.Tls.V4alpha.PrivateKeyProvider.t() | nil,
-          password: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          ocsp_staple: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          signed_certificate_timestamp: [Envoy.Config.Core.V4alpha.DataSource.t()]
-        }
-  defstruct [
-    :certificate_chain,
-    :private_key,
-    :watched_directory,
-    :private_key_provider,
-    :password,
-    :ocsp_staple,
-    :signed_certificate_timestamp
-  ]
 
   field(:certificate_chain, 1, type: Envoy.Config.Core.V4alpha.DataSource)
   field(:private_key, 2, type: Envoy.Config.Core.V4alpha.DataSource)
@@ -114,43 +69,12 @@ defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.TlsSessionTicketKeys do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          keys: [Envoy.Config.Core.V4alpha.DataSource.t()]
-        }
-  defstruct [:keys]
-
   field(:keys, 1, repeated: true, type: Envoy.Config.Core.V4alpha.DataSource)
 end
 
 defmodule Envoy.Extensions.TransportSockets.Tls.V4alpha.CertificateValidationContext do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          trusted_ca: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          watched_directory: Envoy.Config.Core.V4alpha.WatchedDirectory.t() | nil,
-          verify_certificate_spki: [String.t()],
-          verify_certificate_hash: [String.t()],
-          match_subject_alt_names: [Envoy.Type.Matcher.V4alpha.StringMatcher.t()],
-          require_signed_certificate_timestamp: Google.Protobuf.BoolValue.t() | nil,
-          crl: Envoy.Config.Core.V4alpha.DataSource.t() | nil,
-          allow_expired_certificate: boolean,
-          trust_chain_verification:
-            Envoy.Extensions.TransportSockets.Tls.V4alpha.CertificateValidationContext.TrustChainVerification.t(),
-          custom_validator_config: Envoy.Config.Core.V4alpha.TypedExtensionConfig.t() | nil
-        }
-  defstruct [
-    :trusted_ca,
-    :watched_directory,
-    :verify_certificate_spki,
-    :verify_certificate_hash,
-    :match_subject_alt_names,
-    :require_signed_certificate_timestamp,
-    :crl,
-    :allow_expired_certificate,
-    :trust_chain_verification,
-    :custom_validator_config
-  ]
 
   field(:trusted_ca, 1, type: Envoy.Config.Core.V4alpha.DataSource)
   field(:watched_directory, 11, type: Envoy.Config.Core.V4alpha.WatchedDirectory)

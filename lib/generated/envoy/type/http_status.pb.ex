@@ -2,66 +2,6 @@ defmodule Envoy.Type.StatusCode do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t ::
-          integer
-          | :Empty
-          | :Continue
-          | :OK
-          | :Created
-          | :Accepted
-          | :NonAuthoritativeInformation
-          | :NoContent
-          | :ResetContent
-          | :PartialContent
-          | :MultiStatus
-          | :AlreadyReported
-          | :IMUsed
-          | :MultipleChoices
-          | :MovedPermanently
-          | :Found
-          | :SeeOther
-          | :NotModified
-          | :UseProxy
-          | :TemporaryRedirect
-          | :PermanentRedirect
-          | :BadRequest
-          | :Unauthorized
-          | :PaymentRequired
-          | :Forbidden
-          | :NotFound
-          | :MethodNotAllowed
-          | :NotAcceptable
-          | :ProxyAuthenticationRequired
-          | :RequestTimeout
-          | :Conflict
-          | :Gone
-          | :LengthRequired
-          | :PreconditionFailed
-          | :PayloadTooLarge
-          | :URITooLong
-          | :UnsupportedMediaType
-          | :RangeNotSatisfiable
-          | :ExpectationFailed
-          | :MisdirectedRequest
-          | :UnprocessableEntity
-          | :Locked
-          | :FailedDependency
-          | :UpgradeRequired
-          | :PreconditionRequired
-          | :TooManyRequests
-          | :RequestHeaderFieldsTooLarge
-          | :InternalServerError
-          | :NotImplemented
-          | :BadGateway
-          | :ServiceUnavailable
-          | :GatewayTimeout
-          | :HTTPVersionNotSupported
-          | :VariantAlsoNegotiates
-          | :InsufficientStorage
-          | :LoopDetected
-          | :NotExtended
-          | :NetworkAuthenticationRequired
-
   field(:Empty, 0)
   field(:Continue, 100)
   field(:OK, 200)
@@ -124,11 +64,6 @@ end
 defmodule Envoy.Type.HttpStatus do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          code: Envoy.Type.StatusCode.t()
-        }
-  defstruct [:code]
 
   field(:code, 1, type: Envoy.Type.StatusCode, enum: true)
 end

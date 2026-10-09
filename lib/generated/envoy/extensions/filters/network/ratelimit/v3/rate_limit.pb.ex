@@ -2,23 +2,6 @@ defmodule Envoy.Extensions.Filters.Network.Ratelimit.V3.RateLimit do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          stat_prefix: String.t(),
-          domain: String.t(),
-          descriptors: [Envoy.Extensions.Common.Ratelimit.V3.RateLimitDescriptor.t()],
-          timeout: Google.Protobuf.Duration.t() | nil,
-          failure_mode_deny: boolean,
-          rate_limit_service: Envoy.Config.Ratelimit.V3.RateLimitServiceConfig.t() | nil
-        }
-  defstruct [
-    :stat_prefix,
-    :domain,
-    :descriptors,
-    :timeout,
-    :failure_mode_deny,
-    :rate_limit_service
-  ]
-
   field(:stat_prefix, 1, type: :string)
   field(:domain, 2, type: :string)
 

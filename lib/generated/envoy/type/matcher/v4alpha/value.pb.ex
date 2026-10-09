@@ -1,19 +1,11 @@
 defmodule Envoy.Type.Matcher.V4alpha.ValueMatcher.NullMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Type.Matcher.V4alpha.ValueMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          match_pattern: {atom, any}
-        }
-  defstruct [:match_pattern]
 
   oneof(:match_pattern, 0)
   field(:null_match, 1, type: Envoy.Type.Matcher.V4alpha.ValueMatcher.NullMatch, oneof: 0)
@@ -27,11 +19,6 @@ end
 defmodule Envoy.Type.Matcher.V4alpha.ListMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          match_pattern: {atom, any}
-        }
-  defstruct [:match_pattern]
 
   oneof(:match_pattern, 0)
   field(:one_of, 1, type: Envoy.Type.Matcher.V4alpha.ValueMatcher, oneof: 0)

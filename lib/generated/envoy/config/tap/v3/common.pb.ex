@@ -2,14 +2,6 @@ defmodule Envoy.Config.Tap.V3.OutputSink.Format do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t ::
-          integer
-          | :JSON_BODY_AS_BYTES
-          | :JSON_BODY_AS_STRING
-          | :PROTO_BINARY
-          | :PROTO_BINARY_LENGTH_DELIMITED
-          | :PROTO_TEXT
-
   field(:JSON_BODY_AS_BYTES, 0)
   field(:JSON_BODY_AS_STRING, 1)
   field(:PROTO_BINARY, 2)
@@ -21,14 +13,6 @@ defmodule Envoy.Config.Tap.V3.TapConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          match_config: Envoy.Config.Tap.V3.MatchPredicate.t() | nil,
-          match: Envoy.Config.Common.Matcher.V3.MatchPredicate.t() | nil,
-          output_config: Envoy.Config.Tap.V3.OutputConfig.t() | nil,
-          tap_enabled: Envoy.Config.Core.V3.RuntimeFractionalPercent.t() | nil
-        }
-  defstruct [:match_config, :match, :output_config, :tap_enabled]
-
   field(:match_config, 1, type: Envoy.Config.Tap.V3.MatchPredicate, deprecated: true)
   field(:match, 4, type: Envoy.Config.Common.Matcher.V3.MatchPredicate)
   field(:output_config, 2, type: Envoy.Config.Tap.V3.OutputConfig)
@@ -39,22 +23,12 @@ defmodule Envoy.Config.Tap.V3.MatchPredicate.MatchSet do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          rules: [Envoy.Config.Tap.V3.MatchPredicate.t()]
-        }
-  defstruct [:rules]
-
   field(:rules, 1, repeated: true, type: Envoy.Config.Tap.V3.MatchPredicate)
 end
 
 defmodule Envoy.Config.Tap.V3.MatchPredicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
   field(:or_match, 1, type: Envoy.Config.Tap.V3.MatchPredicate.MatchSet, oneof: 0)
@@ -81,22 +55,12 @@ defmodule Envoy.Config.Tap.V3.HttpHeadersMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          headers: [Envoy.Config.Route.V3.HeaderMatcher.t()]
-        }
-  defstruct [:headers]
-
   field(:headers, 1, repeated: true, type: Envoy.Config.Route.V3.HeaderMatcher)
 end
 
 defmodule Envoy.Config.Tap.V3.HttpGenericBodyMatch.GenericTextMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
   field(:string_match, 1, type: :string, oneof: 0)
@@ -106,12 +70,6 @@ end
 defmodule Envoy.Config.Tap.V3.HttpGenericBodyMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          bytes_limit: non_neg_integer,
-          patterns: [Envoy.Config.Tap.V3.HttpGenericBodyMatch.GenericTextMatch.t()]
-        }
-  defstruct [:bytes_limit, :patterns]
 
   field(:bytes_limit, 1, type: :uint32)
 
@@ -125,14 +83,6 @@ defmodule Envoy.Config.Tap.V3.OutputConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          sinks: [Envoy.Config.Tap.V3.OutputSink.t()],
-          max_buffered_rx_bytes: Google.Protobuf.UInt32Value.t() | nil,
-          max_buffered_tx_bytes: Google.Protobuf.UInt32Value.t() | nil,
-          streaming: boolean
-        }
-  defstruct [:sinks, :max_buffered_rx_bytes, :max_buffered_tx_bytes, :streaming]
-
   field(:sinks, 1, repeated: true, type: Envoy.Config.Tap.V3.OutputSink)
   field(:max_buffered_rx_bytes, 2, type: Google.Protobuf.UInt32Value)
   field(:max_buffered_tx_bytes, 3, type: Google.Protobuf.UInt32Value)
@@ -142,12 +92,6 @@ end
 defmodule Envoy.Config.Tap.V3.OutputSink do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          output_sink_type: {atom, any},
-          format: Envoy.Config.Tap.V3.OutputSink.Format.t()
-        }
-  defstruct [:output_sink_type, :format]
 
   oneof(:output_sink_type, 0)
   field(:format, 1, type: Envoy.Config.Tap.V3.OutputSink.Format, enum: true)
@@ -159,19 +103,11 @@ end
 defmodule Envoy.Config.Tap.V3.StreamingAdminSink do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Tap.V3.FilePerTapSink do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          path_prefix: String.t()
-        }
-  defstruct [:path_prefix]
 
   field(:path_prefix, 1, type: :string)
 end
@@ -179,12 +115,6 @@ end
 defmodule Envoy.Config.Tap.V3.StreamingGrpcSink do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          tap_id: String.t(),
-          grpc_service: Envoy.Config.Core.V3.GrpcService.t() | nil
-        }
-  defstruct [:tap_id, :grpc_service]
 
   field(:tap_id, 1, type: :string)
   field(:grpc_service, 2, type: Envoy.Config.Core.V3.GrpcService)

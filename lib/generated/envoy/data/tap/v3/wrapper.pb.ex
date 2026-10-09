@@ -2,11 +2,6 @@ defmodule Envoy.Data.Tap.V3.TraceWrapper do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          trace: {atom, any}
-        }
-  defstruct [:trace]
-
   oneof(:trace, 0)
   field(:http_buffered_trace, 1, type: Envoy.Data.Tap.V3.HttpBufferedTrace, oneof: 0)
 
