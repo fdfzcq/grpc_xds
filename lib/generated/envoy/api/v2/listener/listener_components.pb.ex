@@ -2,8 +2,6 @@ defmodule Envoy.Api.V2.Listener.FilterChainMatch.ConnectionSourceType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :ANY | :LOCAL | :EXTERNAL
-
   field(:ANY, 0)
   field(:LOCAL, 1)
   field(:EXTERNAL, 2)
@@ -12,12 +10,6 @@ end
 defmodule Envoy.Api.V2.Listener.Filter do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
 
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
@@ -28,31 +20,6 @@ end
 defmodule Envoy.Api.V2.Listener.FilterChainMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          destination_port: Google.Protobuf.UInt32Value.t() | nil,
-          prefix_ranges: [Envoy.Api.V2.Core.CidrRange.t()],
-          address_suffix: String.t(),
-          suffix_len: Google.Protobuf.UInt32Value.t() | nil,
-          source_type: Envoy.Api.V2.Listener.FilterChainMatch.ConnectionSourceType.t(),
-          source_prefix_ranges: [Envoy.Api.V2.Core.CidrRange.t()],
-          source_ports: [non_neg_integer],
-          server_names: [String.t()],
-          transport_protocol: String.t(),
-          application_protocols: [String.t()]
-        }
-  defstruct [
-    :destination_port,
-    :prefix_ranges,
-    :address_suffix,
-    :suffix_len,
-    :source_type,
-    :source_prefix_ranges,
-    :source_ports,
-    :server_names,
-    :transport_protocol,
-    :application_protocols
-  ]
 
   field(:destination_port, 8, type: Google.Protobuf.UInt32Value)
   field(:prefix_ranges, 3, repeated: true, type: Envoy.Api.V2.Core.CidrRange)
@@ -75,25 +42,6 @@ defmodule Envoy.Api.V2.Listener.FilterChain do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          filter_chain_match: Envoy.Api.V2.Listener.FilterChainMatch.t() | nil,
-          tls_context: Envoy.Api.V2.Auth.DownstreamTlsContext.t() | nil,
-          filters: [Envoy.Api.V2.Listener.Filter.t()],
-          use_proxy_proto: Google.Protobuf.BoolValue.t() | nil,
-          metadata: Envoy.Api.V2.Core.Metadata.t() | nil,
-          transport_socket: Envoy.Api.V2.Core.TransportSocket.t() | nil,
-          name: String.t()
-        }
-  defstruct [
-    :filter_chain_match,
-    :tls_context,
-    :filters,
-    :use_proxy_proto,
-    :metadata,
-    :transport_socket,
-    :name
-  ]
-
   field(:filter_chain_match, 1, type: Envoy.Api.V2.Listener.FilterChainMatch)
   field(:tls_context, 2, type: Envoy.Api.V2.Auth.DownstreamTlsContext, deprecated: true)
   field(:filters, 3, repeated: true, type: Envoy.Api.V2.Listener.Filter)
@@ -107,22 +55,12 @@ defmodule Envoy.Api.V2.Listener.ListenerFilterChainMatchPredicate.MatchSet do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          rules: [Envoy.Api.V2.Listener.ListenerFilterChainMatchPredicate.t()]
-        }
-  defstruct [:rules]
-
   field(:rules, 1, repeated: true, type: Envoy.Api.V2.Listener.ListenerFilterChainMatchPredicate)
 end
 
 defmodule Envoy.Api.V2.Listener.ListenerFilterChainMatchPredicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
 
@@ -144,13 +82,6 @@ end
 defmodule Envoy.Api.V2.Listener.ListenerFilter do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t(),
-          filter_disabled: Envoy.Api.V2.Listener.ListenerFilterChainMatchPredicate.t() | nil
-        }
-  defstruct [:config_type, :name, :filter_disabled]
 
   oneof(:config_type, 0)
   field(:name, 1, type: :string)

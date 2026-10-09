@@ -2,8 +2,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.Watchdog.WatchdogAction.WatchdogEvent d
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :UNKNOWN | :KILL | :MULTIKILL | :MEGAMISS | :MISS
-
   field(:UNKNOWN, 0)
   field(:KILL, 1)
   field(:MULTIKILL, 2)
@@ -15,13 +13,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.Bootstrap.StaticResources do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          listeners: [Envoy.Config.Listener.V4alpha.Listener.t()],
-          clusters: [Envoy.Config.Cluster.V4alpha.Cluster.t()],
-          secrets: [Envoy.Extensions.TransportSockets.Tls.V4alpha.Secret.t()]
-        }
-  defstruct [:listeners, :clusters, :secrets]
-
   field(:listeners, 1, repeated: true, type: Envoy.Config.Listener.V4alpha.Listener)
   field(:clusters, 2, repeated: true, type: Envoy.Config.Cluster.V4alpha.Cluster)
   field(:secrets, 3, repeated: true, type: Envoy.Extensions.TransportSockets.Tls.V4alpha.Secret)
@@ -30,21 +21,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.Bootstrap.DynamicResources do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          lds_config: Envoy.Config.Core.V4alpha.ConfigSource.t() | nil,
-          lds_resources_locator: String.t(),
-          cds_config: Envoy.Config.Core.V4alpha.ConfigSource.t() | nil,
-          cds_resources_locator: String.t(),
-          ads_config: Envoy.Config.Core.V4alpha.ApiConfigSource.t() | nil
-        }
-  defstruct [
-    :lds_config,
-    :lds_resources_locator,
-    :cds_config,
-    :cds_resources_locator,
-    :ads_config
-  ]
 
   field(:lds_config, 1, type: Envoy.Config.Core.V4alpha.ConfigSource)
   field(:lds_resources_locator, 5, type: :string)
@@ -57,12 +33,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.Bootstrap.CertificateProviderInstancesE
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Envoy.Config.Core.V4alpha.TypedExtensionConfig.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Envoy.Config.Core.V4alpha.TypedExtensionConfig)
 end
@@ -70,61 +40,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.Bootstrap do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          stats_flush: {atom, any},
-          node: Envoy.Config.Core.V4alpha.Node.t() | nil,
-          node_context_params: [String.t()],
-          static_resources: Envoy.Config.Bootstrap.V4alpha.Bootstrap.StaticResources.t() | nil,
-          dynamic_resources: Envoy.Config.Bootstrap.V4alpha.Bootstrap.DynamicResources.t() | nil,
-          cluster_manager: Envoy.Config.Bootstrap.V4alpha.ClusterManager.t() | nil,
-          hds_config: Envoy.Config.Core.V4alpha.ApiConfigSource.t() | nil,
-          flags_path: String.t(),
-          stats_sinks: [Envoy.Config.Metrics.V4alpha.StatsSink.t()],
-          stats_config: Envoy.Config.Metrics.V4alpha.StatsConfig.t() | nil,
-          watchdogs: Envoy.Config.Bootstrap.V4alpha.Watchdogs.t() | nil,
-          layered_runtime: Envoy.Config.Bootstrap.V4alpha.LayeredRuntime.t() | nil,
-          admin: Envoy.Config.Bootstrap.V4alpha.Admin.t() | nil,
-          overload_manager: Envoy.Config.Overload.V3.OverloadManager.t() | nil,
-          enable_dispatcher_stats: boolean,
-          header_prefix: String.t(),
-          stats_server_version_override: Google.Protobuf.UInt64Value.t() | nil,
-          use_tcp_for_dns_lookups: boolean,
-          bootstrap_extensions: [Envoy.Config.Core.V4alpha.TypedExtensionConfig.t()],
-          fatal_actions: [Envoy.Config.Bootstrap.V4alpha.FatalAction.t()],
-          config_sources: [Envoy.Config.Core.V4alpha.ConfigSource.t()],
-          default_config_source: Envoy.Config.Core.V4alpha.ConfigSource.t() | nil,
-          default_socket_interface: String.t(),
-          certificate_provider_instances: %{
-            String.t() => Envoy.Config.Core.V4alpha.TypedExtensionConfig.t() | nil
-          }
-        }
-  defstruct [
-    :stats_flush,
-    :node,
-    :node_context_params,
-    :static_resources,
-    :dynamic_resources,
-    :cluster_manager,
-    :hds_config,
-    :flags_path,
-    :stats_sinks,
-    :stats_config,
-    :watchdogs,
-    :layered_runtime,
-    :admin,
-    :overload_manager,
-    :enable_dispatcher_stats,
-    :header_prefix,
-    :stats_server_version_override,
-    :use_tcp_for_dns_lookups,
-    :bootstrap_extensions,
-    :fatal_actions,
-    :config_sources,
-    :default_config_source,
-    :default_socket_interface,
-    :certificate_provider_instances
-  ]
 
   oneof(:stats_flush, 0)
   field(:node, 1, type: Envoy.Config.Core.V4alpha.Node)
@@ -168,14 +83,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.Admin do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          access_log_path: String.t(),
-          profile_path: String.t(),
-          address: Envoy.Config.Core.V4alpha.Address.t() | nil,
-          socket_options: [Envoy.Config.Core.V4alpha.SocketOption.t()]
-        }
-  defstruct [:access_log_path, :profile_path, :address, :socket_options]
-
   field(:access_log_path, 1, type: :string)
   field(:profile_path, 2, type: :string)
   field(:address, 3, type: Envoy.Config.Core.V4alpha.Address)
@@ -186,12 +93,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.ClusterManager.OutlierDetection do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          event_log_path: String.t(),
-          event_service: Envoy.Config.Core.V4alpha.EventServiceConfig.t() | nil
-        }
-  defstruct [:event_log_path, :event_service]
-
   field(:event_log_path, 1, type: :string)
   field(:event_service, 2, type: Envoy.Config.Core.V4alpha.EventServiceConfig)
 end
@@ -199,15 +100,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.ClusterManager do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          local_cluster_name: String.t(),
-          outlier_detection:
-            Envoy.Config.Bootstrap.V4alpha.ClusterManager.OutlierDetection.t() | nil,
-          upstream_bind_config: Envoy.Config.Core.V4alpha.BindConfig.t() | nil,
-          load_stats_config: Envoy.Config.Core.V4alpha.ApiConfigSource.t() | nil
-        }
-  defstruct [:local_cluster_name, :outlier_detection, :upstream_bind_config, :load_stats_config]
 
   field(:local_cluster_name, 1, type: :string)
 
@@ -223,12 +115,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.Watchdogs do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          main_thread_watchdog: Envoy.Config.Bootstrap.V4alpha.Watchdog.t() | nil,
-          worker_watchdog: Envoy.Config.Bootstrap.V4alpha.Watchdog.t() | nil
-        }
-  defstruct [:main_thread_watchdog, :worker_watchdog]
-
   field(:main_thread_watchdog, 1, type: Envoy.Config.Bootstrap.V4alpha.Watchdog)
   field(:worker_watchdog, 2, type: Envoy.Config.Bootstrap.V4alpha.Watchdog)
 end
@@ -236,12 +122,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.Watchdog.WatchdogAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config: Envoy.Config.Core.V4alpha.TypedExtensionConfig.t() | nil,
-          event: Envoy.Config.Bootstrap.V4alpha.Watchdog.WatchdogAction.WatchdogEvent.t()
-        }
-  defstruct [:config, :event]
 
   field(:config, 1, type: Envoy.Config.Core.V4alpha.TypedExtensionConfig)
 
@@ -254,25 +134,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.Watchdog do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          actions: [Envoy.Config.Bootstrap.V4alpha.Watchdog.WatchdogAction.t()],
-          miss_timeout: Google.Protobuf.Duration.t() | nil,
-          megamiss_timeout: Google.Protobuf.Duration.t() | nil,
-          kill_timeout: Google.Protobuf.Duration.t() | nil,
-          max_kill_timeout_jitter: Google.Protobuf.Duration.t() | nil,
-          multikill_timeout: Google.Protobuf.Duration.t() | nil,
-          multikill_threshold: Envoy.Type.V3.Percent.t() | nil
-        }
-  defstruct [
-    :actions,
-    :miss_timeout,
-    :megamiss_timeout,
-    :kill_timeout,
-    :max_kill_timeout_jitter,
-    :multikill_timeout,
-    :multikill_threshold
-  ]
 
   field(:actions, 7, repeated: true, type: Envoy.Config.Bootstrap.V4alpha.Watchdog.WatchdogAction)
   field(:miss_timeout, 1, type: Google.Protobuf.Duration)
@@ -287,25 +148,12 @@ defmodule Envoy.Config.Bootstrap.V4alpha.FatalAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          config: Envoy.Config.Core.V4alpha.TypedExtensionConfig.t() | nil
-        }
-  defstruct [:config]
-
   field(:config, 1, type: Envoy.Config.Core.V4alpha.TypedExtensionConfig)
 end
 
 defmodule Envoy.Config.Bootstrap.V4alpha.Runtime do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          symlink_root: String.t(),
-          subdirectory: String.t(),
-          override_subdirectory: String.t(),
-          base: Google.Protobuf.Struct.t() | nil
-        }
-  defstruct [:symlink_root, :subdirectory, :override_subdirectory, :base]
 
   field(:symlink_root, 1, type: :string)
   field(:subdirectory, 2, type: :string)
@@ -317,13 +165,6 @@ defmodule Envoy.Config.Bootstrap.V4alpha.RuntimeLayer.DiskLayer do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          symlink_root: String.t(),
-          subdirectory: String.t(),
-          append_service_cluster: boolean
-        }
-  defstruct [:symlink_root, :subdirectory, :append_service_cluster]
-
   field(:symlink_root, 1, type: :string)
   field(:subdirectory, 3, type: :string)
   field(:append_service_cluster, 2, type: :bool)
@@ -332,20 +173,11 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.RuntimeLayer.AdminLayer do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Bootstrap.V4alpha.RuntimeLayer.RtdsLayer do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          rtds_config: Envoy.Config.Core.V4alpha.ConfigSource.t() | nil
-        }
-  defstruct [:name, :rtds_config]
 
   field(:name, 1, type: :string)
   field(:rtds_config, 2, type: Envoy.Config.Core.V4alpha.ConfigSource)
@@ -354,12 +186,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.RuntimeLayer do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          layer_specifier: {atom, any},
-          name: String.t()
-        }
-  defstruct [:layer_specifier, :name]
 
   oneof(:layer_specifier, 0)
   field(:name, 1, type: :string)
@@ -372,11 +198,6 @@ end
 defmodule Envoy.Config.Bootstrap.V4alpha.LayeredRuntime do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          layers: [Envoy.Config.Bootstrap.V4alpha.RuntimeLayer.t()]
-        }
-  defstruct [:layers]
 
   field(:layers, 1, repeated: true, type: Envoy.Config.Bootstrap.V4alpha.RuntimeLayer)
 end

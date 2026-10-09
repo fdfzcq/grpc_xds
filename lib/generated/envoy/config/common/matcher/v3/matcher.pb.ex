@@ -2,11 +2,6 @@ defmodule Envoy.Config.Common.Matcher.V3.Matcher.OnMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          on_match: {atom, any}
-        }
-  defstruct [:on_match]
-
   oneof(:on_match, 0)
   field(:matcher, 1, type: Envoy.Config.Common.Matcher.V3.Matcher, oneof: 0)
   field(:action, 2, type: Envoy.Config.Core.V3.TypedExtensionConfig, oneof: 0)
@@ -15,12 +10,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate.SinglePredicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          matcher: {atom, any},
-          input: Envoy.Config.Core.V3.TypedExtensionConfig.t() | nil
-        }
-  defstruct [:matcher, :input]
 
   oneof(:matcher, 0)
   field(:input, 1, type: Envoy.Config.Core.V3.TypedExtensionConfig)
@@ -32,11 +21,6 @@ defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate.Predicate
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          predicate: [Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate.t()]
-        }
-  defstruct [:predicate]
-
   field(:predicate, 1,
     repeated: true,
     type: Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate
@@ -46,11 +30,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          match_type: {atom, any}
-        }
-  defstruct [:match_type]
 
   oneof(:match_type, 0)
 
@@ -74,12 +53,6 @@ defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.FieldMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          predicate: Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate.t() | nil,
-          on_match: Envoy.Config.Common.Matcher.V3.Matcher.OnMatch.t() | nil
-        }
-  defstruct [:predicate, :on_match]
-
   field(:predicate, 1, type: Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.Predicate)
   field(:on_match, 2, type: Envoy.Config.Common.Matcher.V3.Matcher.OnMatch)
 end
@@ -87,11 +60,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherList do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          matchers: [Envoy.Config.Common.Matcher.V3.Matcher.MatcherList.FieldMatcher.t()]
-        }
-  defstruct [:matchers]
 
   field(:matchers, 1,
     repeated: true,
@@ -103,12 +71,6 @@ defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherTree.MatchMap.MapEntry d
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Envoy.Config.Common.Matcher.V3.Matcher.OnMatch.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Envoy.Config.Common.Matcher.V3.Matcher.OnMatch)
 end
@@ -116,11 +78,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherTree.MatchMap do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          map: %{String.t() => Envoy.Config.Common.Matcher.V3.Matcher.OnMatch.t() | nil}
-        }
-  defstruct [:map]
 
   field(:map, 1,
     repeated: true,
@@ -132,12 +89,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.Matcher.MatcherTree do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          tree_type: {atom, any},
-          input: Envoy.Config.Core.V3.TypedExtensionConfig.t() | nil
-        }
-  defstruct [:tree_type, :input]
 
   oneof(:tree_type, 0)
   field(:input, 1, type: Envoy.Config.Core.V3.TypedExtensionConfig)
@@ -159,12 +110,6 @@ defmodule Envoy.Config.Common.Matcher.V3.Matcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          matcher_type: {atom, any},
-          on_no_match: Envoy.Config.Common.Matcher.V3.Matcher.OnMatch.t() | nil
-        }
-  defstruct [:matcher_type, :on_no_match]
-
   oneof(:matcher_type, 0)
   field(:matcher_list, 1, type: Envoy.Config.Common.Matcher.V3.Matcher.MatcherList, oneof: 0)
   field(:matcher_tree, 2, type: Envoy.Config.Common.Matcher.V3.Matcher.MatcherTree, oneof: 0)
@@ -175,22 +120,12 @@ defmodule Envoy.Config.Common.Matcher.V3.MatchPredicate.MatchSet do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          rules: [Envoy.Config.Common.Matcher.V3.MatchPredicate.t()]
-        }
-  defstruct [:rules]
-
   field(:rules, 1, repeated: true, type: Envoy.Config.Common.Matcher.V3.MatchPredicate)
 end
 
 defmodule Envoy.Config.Common.Matcher.V3.MatchPredicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
   field(:or_match, 1, type: Envoy.Config.Common.Matcher.V3.MatchPredicate.MatchSet, oneof: 0)
@@ -233,22 +168,12 @@ defmodule Envoy.Config.Common.Matcher.V3.HttpHeadersMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          headers: [Envoy.Config.Route.V3.HeaderMatcher.t()]
-        }
-  defstruct [:headers]
-
   field(:headers, 1, repeated: true, type: Envoy.Config.Route.V3.HeaderMatcher)
 end
 
 defmodule Envoy.Config.Common.Matcher.V3.HttpGenericBodyMatch.GenericTextMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
   field(:string_match, 1, type: :string, oneof: 0)
@@ -258,12 +183,6 @@ end
 defmodule Envoy.Config.Common.Matcher.V3.HttpGenericBodyMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          bytes_limit: non_neg_integer,
-          patterns: [Envoy.Config.Common.Matcher.V3.HttpGenericBodyMatch.GenericTextMatch.t()]
-        }
-  defstruct [:bytes_limit, :patterns]
 
   field(:bytes_limit, 1, type: :uint32)
 

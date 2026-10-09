@@ -2,14 +2,6 @@ defmodule Envoy.Api.V2.Auth.UpstreamTlsContext do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          common_tls_context: Envoy.Api.V2.Auth.CommonTlsContext.t() | nil,
-          sni: String.t(),
-          allow_renegotiation: boolean,
-          max_session_keys: Google.Protobuf.UInt32Value.t() | nil
-        }
-  defstruct [:common_tls_context, :sni, :allow_renegotiation, :max_session_keys]
-
   field(:common_tls_context, 1, type: Envoy.Api.V2.Auth.CommonTlsContext)
   field(:sni, 2, type: :string)
   field(:allow_renegotiation, 3, type: :bool)
@@ -19,21 +11,6 @@ end
 defmodule Envoy.Api.V2.Auth.DownstreamTlsContext do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          session_ticket_keys_type: {atom, any},
-          common_tls_context: Envoy.Api.V2.Auth.CommonTlsContext.t() | nil,
-          require_client_certificate: Google.Protobuf.BoolValue.t() | nil,
-          require_sni: Google.Protobuf.BoolValue.t() | nil,
-          session_timeout: Google.Protobuf.Duration.t() | nil
-        }
-  defstruct [
-    :session_ticket_keys_type,
-    :common_tls_context,
-    :require_client_certificate,
-    :require_sni,
-    :session_timeout
-  ]
 
   oneof(:session_ticket_keys_type, 0)
   field(:common_tls_context, 1, type: Envoy.Api.V2.Auth.CommonTlsContext)
@@ -54,12 +31,6 @@ defmodule Envoy.Api.V2.Auth.CommonTlsContext.CombinedCertificateValidationContex
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          default_validation_context: Envoy.Api.V2.Auth.CertificateValidationContext.t() | nil,
-          validation_context_sds_secret_config: Envoy.Api.V2.Auth.SdsSecretConfig.t() | nil
-        }
-  defstruct [:default_validation_context, :validation_context_sds_secret_config]
-
   field(:default_validation_context, 1, type: Envoy.Api.V2.Auth.CertificateValidationContext)
   field(:validation_context_sds_secret_config, 2, type: Envoy.Api.V2.Auth.SdsSecretConfig)
 end
@@ -67,21 +38,6 @@ end
 defmodule Envoy.Api.V2.Auth.CommonTlsContext do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          validation_context_type: {atom, any},
-          tls_params: Envoy.Api.V2.Auth.TlsParameters.t() | nil,
-          tls_certificates: [Envoy.Api.V2.Auth.TlsCertificate.t()],
-          tls_certificate_sds_secret_configs: [Envoy.Api.V2.Auth.SdsSecretConfig.t()],
-          alpn_protocols: [String.t()]
-        }
-  defstruct [
-    :validation_context_type,
-    :tls_params,
-    :tls_certificates,
-    :tls_certificate_sds_secret_configs,
-    :alpn_protocols
-  ]
 
   oneof(:validation_context_type, 0)
   field(:tls_params, 1, type: Envoy.Api.V2.Auth.TlsParameters)

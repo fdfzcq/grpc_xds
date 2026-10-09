@@ -2,8 +2,6 @@ defmodule Envoy.Config.Core.V3.RoutingPriority do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :DEFAULT | :HIGH
-
   field(:DEFAULT, 0)
   field(:HIGH, 1)
 end
@@ -11,19 +9,6 @@ end
 defmodule Envoy.Config.Core.V3.RequestMethod do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
-
-  @type t ::
-          integer
-          | :METHOD_UNSPECIFIED
-          | :GET
-          | :HEAD
-          | :POST
-          | :PUT
-          | :DELETE
-          | :CONNECT
-          | :OPTIONS
-          | :TRACE
-          | :PATCH
 
   field(:METHOD_UNSPECIFIED, 0)
   field(:GET, 1)
@@ -41,8 +26,6 @@ defmodule Envoy.Config.Core.V3.TrafficDirection do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :UNSPECIFIED | :INBOUND | :OUTBOUND
-
   field(:UNSPECIFIED, 0)
   field(:INBOUND, 1)
   field(:OUTBOUND, 2)
@@ -51,13 +34,6 @@ end
 defmodule Envoy.Config.Core.V3.Locality do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          region: String.t(),
-          zone: String.t(),
-          sub_zone: String.t()
-        }
-  defstruct [:region, :zone, :sub_zone]
 
   field(:region, 1, type: :string)
   field(:zone, 2, type: :string)
@@ -68,12 +44,6 @@ defmodule Envoy.Config.Core.V3.BuildVersion do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          version: Envoy.Type.V3.SemanticVersion.t() | nil,
-          metadata: Google.Protobuf.Struct.t() | nil
-        }
-  defstruct [:version, :metadata]
-
   field(:version, 1, type: Envoy.Type.V3.SemanticVersion)
   field(:metadata, 2, type: Google.Protobuf.Struct)
 end
@@ -81,15 +51,6 @@ end
 defmodule Envoy.Config.Core.V3.Extension do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          category: String.t(),
-          type_descriptor: String.t(),
-          version: Envoy.Config.Core.V3.BuildVersion.t() | nil,
-          disabled: boolean
-        }
-  defstruct [:name, :category, :type_descriptor, :version, :disabled]
 
   field(:name, 1, type: :string)
   field(:category, 2, type: :string)
@@ -102,12 +63,6 @@ defmodule Envoy.Config.Core.V3.Node.DynamicParametersEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Xds.Core.V3.ContextParams.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Xds.Core.V3.ContextParams)
 end
@@ -115,31 +70,6 @@ end
 defmodule Envoy.Config.Core.V3.Node do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          user_agent_version_type: {atom, any},
-          id: String.t(),
-          cluster: String.t(),
-          metadata: Google.Protobuf.Struct.t() | nil,
-          dynamic_parameters: %{String.t() => Xds.Core.V3.ContextParams.t() | nil},
-          locality: Envoy.Config.Core.V3.Locality.t() | nil,
-          user_agent_name: String.t(),
-          extensions: [Envoy.Config.Core.V3.Extension.t()],
-          client_features: [String.t()],
-          listening_addresses: [Envoy.Config.Core.V3.Address.t()]
-        }
-  defstruct [
-    :user_agent_version_type,
-    :id,
-    :cluster,
-    :metadata,
-    :dynamic_parameters,
-    :locality,
-    :user_agent_name,
-    :extensions,
-    :client_features,
-    :listening_addresses
-  ]
 
   oneof(:user_agent_version_type, 0)
   field(:id, 1, type: :string)
@@ -170,12 +100,6 @@ defmodule Envoy.Config.Core.V3.Metadata.FilterMetadataEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Google.Protobuf.Struct.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Google.Protobuf.Struct)
 end
@@ -183,11 +107,6 @@ end
 defmodule Envoy.Config.Core.V3.Metadata do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          filter_metadata: %{String.t() => Google.Protobuf.Struct.t() | nil}
-        }
-  defstruct [:filter_metadata]
 
   field(:filter_metadata, 1,
     repeated: true,
@@ -200,12 +119,6 @@ defmodule Envoy.Config.Core.V3.RuntimeUInt32 do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          default_value: non_neg_integer,
-          runtime_key: String.t()
-        }
-  defstruct [:default_value, :runtime_key]
-
   field(:default_value, 2, type: :uint32)
   field(:runtime_key, 3, type: :string)
 end
@@ -213,12 +126,6 @@ end
 defmodule Envoy.Config.Core.V3.RuntimePercent do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          default_value: Envoy.Type.V3.Percent.t() | nil,
-          runtime_key: String.t()
-        }
-  defstruct [:default_value, :runtime_key]
 
   field(:default_value, 1, type: Envoy.Type.V3.Percent)
   field(:runtime_key, 2, type: :string)
@@ -228,12 +135,6 @@ defmodule Envoy.Config.Core.V3.RuntimeDouble do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          default_value: float | :infinity | :negative_infinity | :nan,
-          runtime_key: String.t()
-        }
-  defstruct [:default_value, :runtime_key]
-
   field(:default_value, 1, type: :double)
   field(:runtime_key, 2, type: :string)
 end
@@ -241,12 +142,6 @@ end
 defmodule Envoy.Config.Core.V3.RuntimeFeatureFlag do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          default_value: Google.Protobuf.BoolValue.t() | nil,
-          runtime_key: String.t()
-        }
-  defstruct [:default_value, :runtime_key]
 
   field(:default_value, 1, type: Google.Protobuf.BoolValue)
   field(:runtime_key, 2, type: :string)
@@ -256,12 +151,6 @@ defmodule Envoy.Config.Core.V3.HeaderValue do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: String.t()
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: :string)
 end
@@ -269,12 +158,6 @@ end
 defmodule Envoy.Config.Core.V3.HeaderValueOption do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          header: Envoy.Config.Core.V3.HeaderValue.t() | nil,
-          append: Google.Protobuf.BoolValue.t() | nil
-        }
-  defstruct [:header, :append]
 
   field(:header, 1, type: Envoy.Config.Core.V3.HeaderValue)
   field(:append, 2, type: Google.Protobuf.BoolValue)
@@ -284,11 +167,6 @@ defmodule Envoy.Config.Core.V3.HeaderMap do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          headers: [Envoy.Config.Core.V3.HeaderValue.t()]
-        }
-  defstruct [:headers]
-
   field(:headers, 1, repeated: true, type: Envoy.Config.Core.V3.HeaderValue)
 end
 
@@ -296,22 +174,12 @@ defmodule Envoy.Config.Core.V3.WatchedDirectory do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          path: String.t()
-        }
-  defstruct [:path]
-
   field(:path, 1, type: :string)
 end
 
 defmodule Envoy.Config.Core.V3.DataSource do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          specifier: {atom, any}
-        }
-  defstruct [:specifier]
 
   oneof(:specifier, 0)
   field(:filename, 1, type: :string, oneof: 0)
@@ -323,12 +191,6 @@ defmodule Envoy.Config.Core.V3.RetryPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          retry_back_off: Envoy.Config.Core.V3.BackoffStrategy.t() | nil,
-          num_retries: Google.Protobuf.UInt32Value.t() | nil
-        }
-  defstruct [:retry_back_off, :num_retries]
-
   field(:retry_back_off, 1, type: Envoy.Config.Core.V3.BackoffStrategy)
   field(:num_retries, 2, type: Google.Protobuf.UInt32Value)
 end
@@ -336,13 +198,6 @@ end
 defmodule Envoy.Config.Core.V3.RemoteDataSource do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          http_uri: Envoy.Config.Core.V3.HttpUri.t() | nil,
-          sha256: String.t(),
-          retry_policy: Envoy.Config.Core.V3.RetryPolicy.t() | nil
-        }
-  defstruct [:http_uri, :sha256, :retry_policy]
 
   field(:http_uri, 1, type: Envoy.Config.Core.V3.HttpUri)
   field(:sha256, 2, type: :string)
@@ -353,11 +208,6 @@ defmodule Envoy.Config.Core.V3.AsyncDataSource do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          specifier: {atom, any}
-        }
-  defstruct [:specifier]
-
   oneof(:specifier, 0)
   field(:local, 1, type: Envoy.Config.Core.V3.DataSource, oneof: 0)
   field(:remote, 2, type: Envoy.Config.Core.V3.RemoteDataSource, oneof: 0)
@@ -366,12 +216,6 @@ end
 defmodule Envoy.Config.Core.V3.TransportSocket do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
 
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
@@ -382,12 +226,6 @@ defmodule Envoy.Config.Core.V3.RuntimeFractionalPercent do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          default_value: Envoy.Type.V3.FractionalPercent.t() | nil,
-          runtime_key: String.t()
-        }
-  defstruct [:default_value, :runtime_key]
-
   field(:default_value, 1, type: Envoy.Type.V3.FractionalPercent)
   field(:runtime_key, 2, type: :string)
 end
@@ -395,11 +233,6 @@ end
 defmodule Envoy.Config.Core.V3.ControlPlane do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          identifier: String.t()
-        }
-  defstruct [:identifier]
 
   field(:identifier, 1, type: :string)
 end

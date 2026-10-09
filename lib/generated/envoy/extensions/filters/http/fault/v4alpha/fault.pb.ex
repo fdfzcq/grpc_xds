@@ -1,20 +1,11 @@
 defmodule Envoy.Extensions.Filters.Http.Fault.V4alpha.FaultAbort.HeaderAbort do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Extensions.Filters.Http.Fault.V4alpha.FaultAbort do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          error_type: {atom, any},
-          percentage: Envoy.Type.V3.FractionalPercent.t() | nil
-        }
-  defstruct [:error_type, :percentage]
 
   oneof(:error_type, 0)
   field(:http_status, 2, type: :uint32, oneof: 0)
@@ -31,39 +22,6 @@ end
 defmodule Envoy.Extensions.Filters.Http.Fault.V4alpha.HTTPFault do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          delay: Envoy.Extensions.Filters.Common.Fault.V3.FaultDelay.t() | nil,
-          abort: Envoy.Extensions.Filters.Http.Fault.V4alpha.FaultAbort.t() | nil,
-          upstream_cluster: String.t(),
-          headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()],
-          downstream_nodes: [String.t()],
-          max_active_faults: Google.Protobuf.UInt32Value.t() | nil,
-          response_rate_limit: Envoy.Extensions.Filters.Common.Fault.V3.FaultRateLimit.t() | nil,
-          delay_percent_runtime: String.t(),
-          abort_percent_runtime: String.t(),
-          delay_duration_runtime: String.t(),
-          abort_http_status_runtime: String.t(),
-          max_active_faults_runtime: String.t(),
-          response_rate_limit_percent_runtime: String.t(),
-          abort_grpc_status_runtime: String.t()
-        }
-  defstruct [
-    :delay,
-    :abort,
-    :upstream_cluster,
-    :headers,
-    :downstream_nodes,
-    :max_active_faults,
-    :response_rate_limit,
-    :delay_percent_runtime,
-    :abort_percent_runtime,
-    :delay_duration_runtime,
-    :abort_http_status_runtime,
-    :max_active_faults_runtime,
-    :response_rate_limit_percent_runtime,
-    :abort_grpc_status_runtime
-  ]
 
   field(:delay, 1, type: Envoy.Extensions.Filters.Common.Fault.V3.FaultDelay)
   field(:abort, 2, type: Envoy.Extensions.Filters.Http.Fault.V4alpha.FaultAbort)

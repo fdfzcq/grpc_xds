@@ -2,8 +2,6 @@ defmodule Envoy.Data.Accesslog.V3.HTTPAccessLogEntry.HTTPVersion do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :PROTOCOL_UNSPECIFIED | :HTTP10 | :HTTP11 | :HTTP2 | :HTTP3
-
   field(:PROTOCOL_UNSPECIFIED, 0)
   field(:HTTP10, 1)
   field(:HTTP11, 2)
@@ -15,8 +13,6 @@ defmodule Envoy.Data.Accesslog.V3.ResponseFlags.Unauthorized.Reason do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :REASON_UNSPECIFIED | :EXTERNAL_SERVICE
-
   field(:REASON_UNSPECIFIED, 0)
   field(:EXTERNAL_SERVICE, 1)
 end
@@ -24,8 +20,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.TLSProperties.TLSVersion do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
-
-  @type t :: integer | :VERSION_UNSPECIFIED | :TLSv1 | :TLSv1_1 | :TLSv1_2 | :TLSv1_3
 
   field(:VERSION_UNSPECIFIED, 0)
   field(:TLSv1, 1)
@@ -38,12 +32,6 @@ defmodule Envoy.Data.Accesslog.V3.TCPAccessLogEntry do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          common_properties: Envoy.Data.Accesslog.V3.AccessLogCommon.t() | nil,
-          connection_properties: Envoy.Data.Accesslog.V3.ConnectionProperties.t() | nil
-        }
-  defstruct [:common_properties, :connection_properties]
-
   field(:common_properties, 1, type: Envoy.Data.Accesslog.V3.AccessLogCommon)
   field(:connection_properties, 2, type: Envoy.Data.Accesslog.V3.ConnectionProperties)
 end
@@ -51,14 +39,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.HTTPAccessLogEntry do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          common_properties: Envoy.Data.Accesslog.V3.AccessLogCommon.t() | nil,
-          protocol_version: Envoy.Data.Accesslog.V3.HTTPAccessLogEntry.HTTPVersion.t(),
-          request: Envoy.Data.Accesslog.V3.HTTPRequestProperties.t() | nil,
-          response: Envoy.Data.Accesslog.V3.HTTPResponseProperties.t() | nil
-        }
-  defstruct [:common_properties, :protocol_version, :request, :response]
 
   field(:common_properties, 1, type: Envoy.Data.Accesslog.V3.AccessLogCommon)
 
@@ -75,12 +55,6 @@ defmodule Envoy.Data.Accesslog.V3.ConnectionProperties do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          received_bytes: non_neg_integer,
-          sent_bytes: non_neg_integer
-        }
-  defstruct [:received_bytes, :sent_bytes]
-
   field(:received_bytes, 1, type: :uint64)
   field(:sent_bytes, 2, type: :uint64)
 end
@@ -89,12 +63,6 @@ defmodule Envoy.Data.Accesslog.V3.AccessLogCommon.FilterStateObjectsEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Google.Protobuf.Any.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Google.Protobuf.Any)
 end
@@ -102,53 +70,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.AccessLogCommon do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          sample_rate: float | :infinity | :negative_infinity | :nan,
-          downstream_remote_address: Envoy.Config.Core.V3.Address.t() | nil,
-          downstream_local_address: Envoy.Config.Core.V3.Address.t() | nil,
-          tls_properties: Envoy.Data.Accesslog.V3.TLSProperties.t() | nil,
-          start_time: Google.Protobuf.Timestamp.t() | nil,
-          time_to_last_rx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_first_upstream_tx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_last_upstream_tx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_first_upstream_rx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_last_upstream_rx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_first_downstream_tx_byte: Google.Protobuf.Duration.t() | nil,
-          time_to_last_downstream_tx_byte: Google.Protobuf.Duration.t() | nil,
-          upstream_remote_address: Envoy.Config.Core.V3.Address.t() | nil,
-          upstream_local_address: Envoy.Config.Core.V3.Address.t() | nil,
-          upstream_cluster: String.t(),
-          response_flags: Envoy.Data.Accesslog.V3.ResponseFlags.t() | nil,
-          metadata: Envoy.Config.Core.V3.Metadata.t() | nil,
-          upstream_transport_failure_reason: String.t(),
-          route_name: String.t(),
-          downstream_direct_remote_address: Envoy.Config.Core.V3.Address.t() | nil,
-          filter_state_objects: %{String.t() => Google.Protobuf.Any.t() | nil}
-        }
-  defstruct [
-    :sample_rate,
-    :downstream_remote_address,
-    :downstream_local_address,
-    :tls_properties,
-    :start_time,
-    :time_to_last_rx_byte,
-    :time_to_first_upstream_tx_byte,
-    :time_to_last_upstream_tx_byte,
-    :time_to_first_upstream_rx_byte,
-    :time_to_last_upstream_rx_byte,
-    :time_to_first_downstream_tx_byte,
-    :time_to_last_downstream_tx_byte,
-    :upstream_remote_address,
-    :upstream_local_address,
-    :upstream_cluster,
-    :response_flags,
-    :metadata,
-    :upstream_transport_failure_reason,
-    :route_name,
-    :downstream_direct_remote_address,
-    :filter_state_objects
-  ]
 
   field(:sample_rate, 1, type: :double)
   field(:downstream_remote_address, 2, type: Envoy.Config.Core.V3.Address)
@@ -182,68 +103,12 @@ defmodule Envoy.Data.Accesslog.V3.ResponseFlags.Unauthorized do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          reason: Envoy.Data.Accesslog.V3.ResponseFlags.Unauthorized.Reason.t()
-        }
-  defstruct [:reason]
-
   field(:reason, 1, type: Envoy.Data.Accesslog.V3.ResponseFlags.Unauthorized.Reason, enum: true)
 end
 
 defmodule Envoy.Data.Accesslog.V3.ResponseFlags do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          failed_local_healthcheck: boolean,
-          no_healthy_upstream: boolean,
-          upstream_request_timeout: boolean,
-          local_reset: boolean,
-          upstream_remote_reset: boolean,
-          upstream_connection_failure: boolean,
-          upstream_connection_termination: boolean,
-          upstream_overflow: boolean,
-          no_route_found: boolean,
-          delay_injected: boolean,
-          fault_injected: boolean,
-          rate_limited: boolean,
-          unauthorized_details: Envoy.Data.Accesslog.V3.ResponseFlags.Unauthorized.t() | nil,
-          rate_limit_service_error: boolean,
-          downstream_connection_termination: boolean,
-          upstream_retry_limit_exceeded: boolean,
-          stream_idle_timeout: boolean,
-          invalid_envoy_request_headers: boolean,
-          downstream_protocol_error: boolean,
-          upstream_max_stream_duration_reached: boolean,
-          response_from_cache_filter: boolean,
-          no_filter_config_found: boolean,
-          duration_timeout: boolean
-        }
-  defstruct [
-    :failed_local_healthcheck,
-    :no_healthy_upstream,
-    :upstream_request_timeout,
-    :local_reset,
-    :upstream_remote_reset,
-    :upstream_connection_failure,
-    :upstream_connection_termination,
-    :upstream_overflow,
-    :no_route_found,
-    :delay_injected,
-    :fault_injected,
-    :rate_limited,
-    :unauthorized_details,
-    :rate_limit_service_error,
-    :downstream_connection_termination,
-    :upstream_retry_limit_exceeded,
-    :stream_idle_timeout,
-    :invalid_envoy_request_headers,
-    :downstream_protocol_error,
-    :upstream_max_stream_duration_reached,
-    :response_from_cache_filter,
-    :no_filter_config_found,
-    :duration_timeout
-  ]
 
   field(:failed_local_healthcheck, 1, type: :bool)
   field(:no_healthy_upstream, 2, type: :bool)
@@ -274,11 +139,6 @@ defmodule Envoy.Data.Accesslog.V3.TLSProperties.CertificateProperties.SubjectAlt
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          san: {atom, any}
-        }
-  defstruct [:san]
-
   oneof(:san, 0)
   field(:uri, 1, type: :string, oneof: 0)
   field(:dns, 2, type: :string, oneof: 0)
@@ -287,14 +147,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.TLSProperties.CertificateProperties do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          subject_alt_name: [
-            Envoy.Data.Accesslog.V3.TLSProperties.CertificateProperties.SubjectAltName.t()
-          ],
-          subject: String.t()
-        }
-  defstruct [:subject_alt_name, :subject]
 
   field(:subject_alt_name, 1,
     repeated: true,
@@ -307,25 +159,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.TLSProperties do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          tls_version: Envoy.Data.Accesslog.V3.TLSProperties.TLSVersion.t(),
-          tls_cipher_suite: Google.Protobuf.UInt32Value.t() | nil,
-          tls_sni_hostname: String.t(),
-          local_certificate_properties:
-            Envoy.Data.Accesslog.V3.TLSProperties.CertificateProperties.t() | nil,
-          peer_certificate_properties:
-            Envoy.Data.Accesslog.V3.TLSProperties.CertificateProperties.t() | nil,
-          tls_session_id: String.t()
-        }
-  defstruct [
-    :tls_version,
-    :tls_cipher_suite,
-    :tls_sni_hostname,
-    :local_certificate_properties,
-    :peer_certificate_properties,
-    :tls_session_id
-  ]
 
   field(:tls_version, 1, type: Envoy.Data.Accesslog.V3.TLSProperties.TLSVersion, enum: true)
   field(:tls_cipher_suite, 2, type: Google.Protobuf.UInt32Value)
@@ -346,12 +179,6 @@ defmodule Envoy.Data.Accesslog.V3.HTTPRequestProperties.RequestHeadersEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: String.t()
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: :string)
 end
@@ -359,37 +186,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.HTTPRequestProperties do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          request_method: Envoy.Config.Core.V3.RequestMethod.t(),
-          scheme: String.t(),
-          authority: String.t(),
-          port: Google.Protobuf.UInt32Value.t() | nil,
-          path: String.t(),
-          user_agent: String.t(),
-          referer: String.t(),
-          forwarded_for: String.t(),
-          request_id: String.t(),
-          original_path: String.t(),
-          request_headers_bytes: non_neg_integer,
-          request_body_bytes: non_neg_integer,
-          request_headers: %{String.t() => String.t()}
-        }
-  defstruct [
-    :request_method,
-    :scheme,
-    :authority,
-    :port,
-    :path,
-    :user_agent,
-    :referer,
-    :forwarded_for,
-    :request_id,
-    :original_path,
-    :request_headers_bytes,
-    :request_body_bytes,
-    :request_headers
-  ]
 
   field(:request_method, 1, type: Envoy.Config.Core.V3.RequestMethod, enum: true)
   field(:scheme, 2, type: :string)
@@ -415,12 +211,6 @@ defmodule Envoy.Data.Accesslog.V3.HTTPResponseProperties.ResponseHeadersEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: String.t()
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: :string)
 end
@@ -429,12 +219,6 @@ defmodule Envoy.Data.Accesslog.V3.HTTPResponseProperties.ResponseTrailersEntry d
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: String.t()
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: :string)
 end
@@ -442,23 +226,6 @@ end
 defmodule Envoy.Data.Accesslog.V3.HTTPResponseProperties do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          response_code: Google.Protobuf.UInt32Value.t() | nil,
-          response_headers_bytes: non_neg_integer,
-          response_body_bytes: non_neg_integer,
-          response_headers: %{String.t() => String.t()},
-          response_trailers: %{String.t() => String.t()},
-          response_code_details: String.t()
-        }
-  defstruct [
-    :response_code,
-    :response_headers_bytes,
-    :response_body_bytes,
-    :response_headers,
-    :response_trailers,
-    :response_code_details
-  ]
 
   field(:response_code, 1, type: Google.Protobuf.UInt32Value)
   field(:response_headers_bytes, 2, type: :uint64)

@@ -2,15 +2,6 @@ defmodule Envoy.Extensions.Filters.Network.RocketmqProxy.V4alpha.RocketmqProxy d
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          stat_prefix: String.t(),
-          route_config:
-            Envoy.Extensions.Filters.Network.RocketmqProxy.V4alpha.RouteConfiguration.t() | nil,
-          transient_object_life_span: Google.Protobuf.Duration.t() | nil,
-          develop_mode: boolean
-        }
-  defstruct [:stat_prefix, :route_config, :transient_object_life_span, :develop_mode]
-
   field(:stat_prefix, 1, type: :string)
 
   field(:route_config, 2,

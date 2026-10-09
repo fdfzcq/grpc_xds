@@ -5,7 +5,7 @@ defmodule GrpcXds.MixProject do
     [
       app: :grpc_xds,
       version: "0.1.0",
-      elixir: "~> 1.9",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -21,9 +21,9 @@ defmodule GrpcXds.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:grpc, github: "elixir-grpc/grpc", ref: "09d08de7a5492b7b9f1c706846dad8862508a0ef"},
-      # 2.9.0 fixes some important bugs, so it's better to use ~> 2.9.0
-      {:cowlib, "~> 2.9.0", override: true}
+      {:grpc, github: "elixir-grpc/grpc", branch: "master", sparse: "grpc"},
+      {:gun, "~> 2.4"},
+      {:grpc_server, "~> 1.0.5", only: :test}
     ]
   end
 end

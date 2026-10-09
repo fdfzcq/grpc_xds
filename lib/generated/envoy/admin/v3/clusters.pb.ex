@@ -2,36 +2,12 @@ defmodule Envoy.Admin.V3.Clusters do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          cluster_statuses: [Envoy.Admin.V3.ClusterStatus.t()]
-        }
-  defstruct [:cluster_statuses]
-
   field(:cluster_statuses, 1, repeated: true, type: Envoy.Admin.V3.ClusterStatus)
 end
 
 defmodule Envoy.Admin.V3.ClusterStatus do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          added_via_api: boolean,
-          success_rate_ejection_threshold: Envoy.Type.V3.Percent.t() | nil,
-          host_statuses: [Envoy.Admin.V3.HostStatus.t()],
-          local_origin_success_rate_ejection_threshold: Envoy.Type.V3.Percent.t() | nil,
-          circuit_breakers: Envoy.Config.Cluster.V3.CircuitBreakers.t() | nil,
-          observability_name: String.t()
-        }
-  defstruct [
-    :name,
-    :added_via_api,
-    :success_rate_ejection_threshold,
-    :host_statuses,
-    :local_origin_success_rate_ejection_threshold,
-    :circuit_breakers,
-    :observability_name
-  ]
 
   field(:name, 1, type: :string)
   field(:added_via_api, 2, type: :bool)
@@ -45,29 +21,6 @@ end
 defmodule Envoy.Admin.V3.HostStatus do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          address: Envoy.Config.Core.V3.Address.t() | nil,
-          stats: [Envoy.Admin.V3.SimpleMetric.t()],
-          health_status: Envoy.Admin.V3.HostHealthStatus.t() | nil,
-          success_rate: Envoy.Type.V3.Percent.t() | nil,
-          weight: non_neg_integer,
-          hostname: String.t(),
-          priority: non_neg_integer,
-          local_origin_success_rate: Envoy.Type.V3.Percent.t() | nil,
-          locality: Envoy.Config.Core.V3.Locality.t() | nil
-        }
-  defstruct [
-    :address,
-    :stats,
-    :health_status,
-    :success_rate,
-    :weight,
-    :hostname,
-    :priority,
-    :local_origin_success_rate,
-    :locality
-  ]
 
   field(:address, 1, type: Envoy.Config.Core.V3.Address)
   field(:stats, 2, repeated: true, type: Envoy.Admin.V3.SimpleMetric)
@@ -83,27 +36,6 @@ end
 defmodule Envoy.Admin.V3.HostHealthStatus do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          failed_active_health_check: boolean,
-          failed_outlier_check: boolean,
-          failed_active_degraded_check: boolean,
-          pending_dynamic_removal: boolean,
-          pending_active_hc: boolean,
-          excluded_via_immediate_hc_fail: boolean,
-          active_hc_timeout: boolean,
-          eds_health_status: Envoy.Config.Core.V3.HealthStatus.t()
-        }
-  defstruct [
-    :failed_active_health_check,
-    :failed_outlier_check,
-    :failed_active_degraded_check,
-    :pending_dynamic_removal,
-    :pending_active_hc,
-    :excluded_via_immediate_hc_fail,
-    :active_hc_timeout,
-    :eds_health_status
-  ]
 
   field(:failed_active_health_check, 1, type: :bool)
   field(:failed_outlier_check, 2, type: :bool)

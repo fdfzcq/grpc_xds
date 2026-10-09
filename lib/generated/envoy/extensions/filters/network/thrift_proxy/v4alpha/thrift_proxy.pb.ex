@@ -2,8 +2,6 @@ defmodule Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.TransportType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :AUTO_TRANSPORT | :FRAMED | :UNFRAMED | :HEADER
-
   field(:AUTO_TRANSPORT, 0)
   field(:FRAMED, 1)
   field(:UNFRAMED, 2)
@@ -13,8 +11,6 @@ end
 defmodule Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ProtocolType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
-
-  @type t :: integer | :AUTO_PROTOCOL | :BINARY | :LAX_BINARY | :COMPACT | :TWITTER
 
   field(:AUTO_PROTOCOL, 0)
   field(:BINARY, 1)
@@ -26,26 +22,6 @@ end
 defmodule Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ThriftProxy do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          transport: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.TransportType.t(),
-          protocol: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ProtocolType.t(),
-          stat_prefix: String.t(),
-          route_config:
-            Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.RouteConfiguration.t() | nil,
-          thrift_filters: [Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ThriftFilter.t()],
-          payload_passthrough: boolean,
-          max_requests_per_connection: Google.Protobuf.UInt32Value.t() | nil
-        }
-  defstruct [
-    :transport,
-    :protocol,
-    :stat_prefix,
-    :route_config,
-    :thrift_filters,
-    :payload_passthrough,
-    :max_requests_per_connection
-  ]
 
   field(:transport, 2,
     type: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.TransportType,
@@ -76,12 +52,6 @@ defmodule Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ThriftFilter do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
-
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
   field(:typed_config, 3, type: Google.Protobuf.Any, oneof: 0)
@@ -90,12 +60,6 @@ end
 defmodule Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ThriftProtocolOptions do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          transport: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.TransportType.t(),
-          protocol: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.ProtocolType.t()
-        }
-  defstruct [:transport, :protocol]
 
   field(:transport, 1,
     type: Envoy.Extensions.Filters.Network.ThriftProxy.V4alpha.TransportType,
