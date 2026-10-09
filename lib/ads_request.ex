@@ -1,55 +1,66 @@
 defmodule GRPC.XDS.ADS.Request do
-  def discovery_request(type, resources, version) do
+  alias Envoy.Config.Core.V3.Node
+
+  def discovery_request(type, resources, version, opts \\ []) do
     %Envoy.Service.Discovery.V3.DiscoveryRequest{
-      type_url: type_to_url(type),
-      response_nonce: "1",
+      type_url: GRPC.XDS.ADS.TypeMap.type_atom_to_type_url(type),
+      response_nonce: Keyword.get(opts, :nonce, ""),
       resource_names: resources,
-      node: xds_node(),
-      version_info: version
+      node: Keyword.get_lazy(opts, :node, fn -> xds_node(opts) end),
+      version_info: version || ""
     }
   end
 
-  defp xds_node() do
-    %Envoy.Config.Core.V3.Node{
-      id: Application.get_env(:grpc_xds, :project_id),
-      cluster: Application.get_env(:grpc_xds, :node_cluster),
-      metadata: xds_node_metadata(),
-      user_agent_name: Application.get_env(:grpc_xds, :user_agent_name),
-      user_agent_version_type: Application.get_env(:grpc_xds, :user_agent_version_type),
-      dynamic_parameters: %{},
-      extensions: [],
-      client_features: ["envoy.lb.does_not_support_overprovisioning"],
-      listening_addresses: []
-    }
+  def xds_node(opts \\ []) do
+    case Keyword.get(opts, :node) do
+      %Node{} = node ->
+        node
+
+      nil ->
+        %Node{
+          id: option(opts, :node_id, "grpc-xds"),
+          cluster: option(opts, :node_cluster, ""),
+          metadata: protobuf_struct(option(opts, :node_metadata, %{})),
+          user_agent_name: "grpc_xds",
+          client_features: ["envoy.lb.does_not_support_overprovisioning"]
+        }
+    end
   end
 
-  defp type_to_url(type_atom),
-    do: GRPC.XDS.ADS.TypeMap.type_atom_to_type_url(type_atom)
+  defp option(opts, key, default),
+    do: Keyword.get(opts, key, Application.get_env(:grpc_xds, key, default))
 
-  defp xds_node_metadata() do
+  defp protobuf_struct(map) when is_map(map) do
     %Google.Protobuf.Struct{
-      fields: to_protobuf_struct(Application.get_env(:grpc_xds, :node_metadata))
+      fields: Map.new(map, fn {key, value} -> {to_string(key), protobuf_value(value)} end)
     }
   end
 
-  defp to_protobuf_struct(map) do
-    map
-    |> Enum.map(fn {k, value} -> {k, to_protobuf_type(value)} end)
-    |> Map.new()
-  end
-
-  defp to_protobuf_type(value) do
-    typed_value =
+  defp protobuf_value(value) do
+    kind =
       cond do
-        is_nil(value) -> {:null_value, value}
-        is_number(value) -> {:number_value, value}
-        is_binary(value) -> {:string_value, value}
-        is_boolean(value) -> {:bool_value, value}
-        is_map(value) -> {:struct_value, to_protobuf_struct(value)}
-        is_list(value) -> {:list_value, Enum.map(value, &to_protobuf_type/1)}
-        true -> {:error, :unsupported_value_type}
+        is_nil(value) ->
+          {:null_value, :NULL_VALUE}
+
+        is_boolean(value) ->
+          {:bool_value, value}
+
+        is_number(value) ->
+          {:number_value, value}
+
+        is_binary(value) ->
+          {:string_value, value}
+
+        is_map(value) ->
+          {:struct_value, protobuf_struct(value)}
+
+        is_list(value) ->
+          {:list_value, %Google.Protobuf.ListValue{values: Enum.map(value, &protobuf_value/1)}}
+
+        true ->
+          raise ArgumentError, "node metadata must contain JSON-compatible values"
       end
 
-    %Google.Protobuf.Value{kind: typed_value}
+    %Google.Protobuf.Value{kind: kind}
   end
 end
