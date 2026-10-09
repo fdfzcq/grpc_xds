@@ -2,8 +2,6 @@ defmodule Envoy.Config.Rbac.V4alpha.RBAC.Action do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :ALLOW | :DENY | :LOG
-
   field(:ALLOW, 0)
   field(:DENY, 1)
   field(:LOG, 2)
@@ -13,12 +11,6 @@ defmodule Envoy.Config.Rbac.V4alpha.RBAC.PoliciesEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Envoy.Config.Rbac.V4alpha.Policy.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Envoy.Config.Rbac.V4alpha.Policy)
 end
@@ -26,12 +18,6 @@ end
 defmodule Envoy.Config.Rbac.V4alpha.RBAC do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          action: Envoy.Config.Rbac.V4alpha.RBAC.Action.t(),
-          policies: %{String.t() => Envoy.Config.Rbac.V4alpha.Policy.t() | nil}
-        }
-  defstruct [:action, :policies]
 
   field(:action, 1, type: Envoy.Config.Rbac.V4alpha.RBAC.Action, enum: true)
 
@@ -46,13 +32,6 @@ defmodule Envoy.Config.Rbac.V4alpha.Policy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          expression_specifier: {atom, any},
-          permissions: [Envoy.Config.Rbac.V4alpha.Permission.t()],
-          principals: [Envoy.Config.Rbac.V4alpha.Principal.t()]
-        }
-  defstruct [:expression_specifier, :permissions, :principals]
-
   oneof(:expression_specifier, 0)
   field(:permissions, 1, repeated: true, type: Envoy.Config.Rbac.V4alpha.Permission)
   field(:principals, 2, repeated: true, type: Envoy.Config.Rbac.V4alpha.Principal)
@@ -64,22 +43,12 @@ defmodule Envoy.Config.Rbac.V4alpha.Permission.Set do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          rules: [Envoy.Config.Rbac.V4alpha.Permission.t()]
-        }
-  defstruct [:rules]
-
   field(:rules, 1, repeated: true, type: Envoy.Config.Rbac.V4alpha.Permission)
 end
 
 defmodule Envoy.Config.Rbac.V4alpha.Permission do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          rule: {atom, any}
-        }
-  defstruct [:rule]
 
   oneof(:rule, 0)
   field(:and_rules, 1, type: Envoy.Config.Rbac.V4alpha.Permission.Set, oneof: 0)
@@ -98,11 +67,6 @@ defmodule Envoy.Config.Rbac.V4alpha.Principal.Set do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          ids: [Envoy.Config.Rbac.V4alpha.Principal.t()]
-        }
-  defstruct [:ids]
-
   field(:ids, 1, repeated: true, type: Envoy.Config.Rbac.V4alpha.Principal)
 end
 
@@ -110,22 +74,12 @@ defmodule Envoy.Config.Rbac.V4alpha.Principal.Authenticated do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          principal_name: Envoy.Type.Matcher.V4alpha.StringMatcher.t() | nil
-        }
-  defstruct [:principal_name]
-
   field(:principal_name, 2, type: Envoy.Type.Matcher.V4alpha.StringMatcher)
 end
 
 defmodule Envoy.Config.Rbac.V4alpha.Principal do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          identifier: {atom, any}
-        }
-  defstruct [:identifier]
 
   oneof(:identifier, 0)
   field(:and_ids, 1, type: Envoy.Config.Rbac.V4alpha.Principal.Set, oneof: 0)

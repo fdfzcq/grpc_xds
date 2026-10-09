@@ -11,7 +11,7 @@ defmodule GRPC.XDS.ADS.TypeMap do
       listener: google_prefix() <> "envoy.config.listener.v3.Listener",
       route_configuration: google_prefix() <> "envoy.config.route.v3.RouteConfiguration",
       scoped_route_configuration:
-        google_prefix() <> "envoy.config.route.v3.ScopeRouteConfiguration",
+        google_prefix() <> "envoy.config.route.v3.ScopedRouteConfiguration",
       virtual_host: google_prefix() <> "envoy.config.route.v3.VirtualHost",
       cluster: google_prefix() <> "envoy.config.cluster.v3.Cluster",
       cluster_load_assignment: google_prefix() <> "envoy.config.endpoint.v3.ClusterLoadAssignment"
@@ -21,7 +21,7 @@ defmodule GRPC.XDS.ADS.TypeMap do
     do: %{
       (google_prefix() <> "envoy.config.listener.v3.Listener") => :listener,
       (google_prefix() <> "envoy.config.route.v3.RouteConfiguration") => :route_configuration,
-      (google_prefix() <> "envoy.config.route.v3.ScopeRouteConfiguration") =>
+      (google_prefix() <> "envoy.config.route.v3.ScopedRouteConfiguration") =>
         :scoped_route_configuration,
       (google_prefix() <> "envoy.config.route.v3.VirtualHost") => :virtual_host,
       (google_prefix() <> "envoy.config.cluster.v3.Cluster") => :cluster,
@@ -35,7 +35,7 @@ defmodule GRPC.XDS.ADS.TypeMap do
         Envoy.Config.Listener.V3.Listener,
       (google_prefix() <> "envoy.config.route.v3.RouteConfiguration") =>
         Envoy.Config.Route.V3.RouteConfiguration,
-      (google_prefix() <> "envoy.config.route.v3.ScopeRouteConfiguration") =>
+      (google_prefix() <> "envoy.config.route.v3.ScopedRouteConfiguration") =>
         Envoy.Config.Route.V3.ScopedRouteConfiguration,
       (google_prefix() <> "envoy.config.route.v3.VirtualHost") =>
         Envoy.Config.Route.V3.VirtualHost,

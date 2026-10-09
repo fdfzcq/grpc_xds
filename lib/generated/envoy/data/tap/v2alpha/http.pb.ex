@@ -2,13 +2,6 @@ defmodule Envoy.Data.Tap.V2alpha.HttpBufferedTrace.Message do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          headers: [Envoy.Api.V2.Core.HeaderValue.t()],
-          body: Envoy.Data.Tap.V2alpha.Body.t() | nil,
-          trailers: [Envoy.Api.V2.Core.HeaderValue.t()]
-        }
-  defstruct [:headers, :body, :trailers]
-
   field(:headers, 1, repeated: true, type: Envoy.Api.V2.Core.HeaderValue)
   field(:body, 2, type: Envoy.Data.Tap.V2alpha.Body)
   field(:trailers, 3, repeated: true, type: Envoy.Api.V2.Core.HeaderValue)
@@ -18,12 +11,6 @@ defmodule Envoy.Data.Tap.V2alpha.HttpBufferedTrace do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          request: Envoy.Data.Tap.V2alpha.HttpBufferedTrace.Message.t() | nil,
-          response: Envoy.Data.Tap.V2alpha.HttpBufferedTrace.Message.t() | nil
-        }
-  defstruct [:request, :response]
-
   field(:request, 1, type: Envoy.Data.Tap.V2alpha.HttpBufferedTrace.Message)
   field(:response, 2, type: Envoy.Data.Tap.V2alpha.HttpBufferedTrace.Message)
 end
@@ -31,12 +18,6 @@ end
 defmodule Envoy.Data.Tap.V2alpha.HttpStreamedTraceSegment do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          message_piece: {atom, any},
-          trace_id: non_neg_integer
-        }
-  defstruct [:message_piece, :trace_id]
 
   oneof(:message_piece, 0)
   field(:trace_id, 1, type: :uint64)

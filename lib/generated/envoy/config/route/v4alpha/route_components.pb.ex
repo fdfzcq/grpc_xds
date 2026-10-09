@@ -2,8 +2,6 @@ defmodule Envoy.Config.Route.V4alpha.VirtualHost.TlsRequirementType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :NONE | :EXTERNAL_ONLY | :ALL
-
   field(:NONE, 0)
   field(:EXTERNAL_ONLY, 1)
   field(:ALL, 2)
@@ -13,8 +11,6 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.ClusterNotFoundResponseCode do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :SERVICE_UNAVAILABLE | :NOT_FOUND
-
   field(:SERVICE_UNAVAILABLE, 0)
   field(:NOT_FOUND, 1)
 end
@@ -23,8 +19,6 @@ defmodule Envoy.Config.Route.V4alpha.RetryPolicy.ResetHeaderFormat do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :SECONDS | :UNIX_TIMESTAMP
-
   field(:SECONDS, 0)
   field(:UNIX_TIMESTAMP, 1)
 end
@@ -32,14 +26,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RedirectAction.RedirectResponseCode do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
-
-  @type t ::
-          integer
-          | :MOVED_PERMANENTLY
-          | :FOUND
-          | :SEE_OTHER
-          | :TEMPORARY_REDIRECT
-          | :PERMANENT_REDIRECT
 
   field(:MOVED_PERMANENTLY, 0)
   field(:FOUND, 1)
@@ -52,8 +38,6 @@ defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.MetaData.Source do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :DYNAMIC | :ROUTE_ENTRY
-
   field(:DYNAMIC, 0)
   field(:ROUTE_ENTRY, 1)
 end
@@ -62,12 +46,6 @@ defmodule Envoy.Config.Route.V4alpha.VirtualHost.TypedPerFilterConfigEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Google.Protobuf.Any.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Google.Protobuf.Any)
 end
@@ -75,47 +53,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.VirtualHost do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          domains: [String.t()],
-          routes: [Envoy.Config.Route.V4alpha.Route.t()],
-          require_tls: Envoy.Config.Route.V4alpha.VirtualHost.TlsRequirementType.t(),
-          virtual_clusters: [Envoy.Config.Route.V4alpha.VirtualCluster.t()],
-          rate_limits: [Envoy.Config.Route.V4alpha.RateLimit.t()],
-          request_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          request_headers_to_remove: [String.t()],
-          response_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          response_headers_to_remove: [String.t()],
-          cors: Envoy.Config.Route.V4alpha.CorsPolicy.t() | nil,
-          typed_per_filter_config: %{String.t() => Google.Protobuf.Any.t() | nil},
-          include_request_attempt_count: boolean,
-          include_attempt_count_in_response: boolean,
-          retry_policy: Envoy.Config.Route.V4alpha.RetryPolicy.t() | nil,
-          retry_policy_typed_config: Google.Protobuf.Any.t() | nil,
-          hedge_policy: Envoy.Config.Route.V4alpha.HedgePolicy.t() | nil,
-          per_request_buffer_limit_bytes: Google.Protobuf.UInt32Value.t() | nil
-        }
-  defstruct [
-    :name,
-    :domains,
-    :routes,
-    :require_tls,
-    :virtual_clusters,
-    :rate_limits,
-    :request_headers_to_add,
-    :request_headers_to_remove,
-    :response_headers_to_add,
-    :response_headers_to_remove,
-    :cors,
-    :typed_per_filter_config,
-    :include_request_attempt_count,
-    :include_attempt_count_in_response,
-    :retry_policy,
-    :retry_policy_typed_config,
-    :hedge_policy,
-    :per_request_buffer_limit_bytes
-  ]
 
   field(:name, 1, type: :string)
   field(:domains, 2, repeated: true, type: :string)
@@ -162,23 +99,12 @@ defmodule Envoy.Config.Route.V4alpha.FilterAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          action: Google.Protobuf.Any.t() | nil
-        }
-  defstruct [:action]
-
   field(:action, 1, type: Google.Protobuf.Any)
 end
 
 defmodule Envoy.Config.Route.V4alpha.Route.TypedPerFilterConfigEntry do
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Google.Protobuf.Any.t() | nil
-        }
-  defstruct [:key, :value]
 
   field(:key, 1, type: :string)
   field(:value, 2, type: Google.Protobuf.Any)
@@ -187,35 +113,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.Route do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          action: {atom, any},
-          name: String.t(),
-          match: Envoy.Config.Route.V4alpha.RouteMatch.t() | nil,
-          metadata: Envoy.Config.Core.V4alpha.Metadata.t() | nil,
-          decorator: Envoy.Config.Route.V4alpha.Decorator.t() | nil,
-          typed_per_filter_config: %{String.t() => Google.Protobuf.Any.t() | nil},
-          request_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          request_headers_to_remove: [String.t()],
-          response_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          response_headers_to_remove: [String.t()],
-          tracing: Envoy.Config.Route.V4alpha.Tracing.t() | nil,
-          per_request_buffer_limit_bytes: Google.Protobuf.UInt32Value.t() | nil
-        }
-  defstruct [
-    :action,
-    :name,
-    :match,
-    :metadata,
-    :decorator,
-    :typed_per_filter_config,
-    :request_headers_to_add,
-    :request_headers_to_remove,
-    :response_headers_to_add,
-    :response_headers_to_remove,
-    :tracing,
-    :per_request_buffer_limit_bytes
-  ]
 
   oneof(:action, 0)
   field(:name, 14, type: :string)
@@ -254,12 +151,6 @@ defmodule Envoy.Config.Route.V4alpha.WeightedCluster.ClusterWeight.TypedPerFilte
   @moduledoc false
   use Protobuf, map: true, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t(),
-          value: Google.Protobuf.Any.t() | nil
-        }
-  defstruct [:key, :value]
-
   field(:key, 1, type: :string)
   field(:value, 2, type: Google.Protobuf.Any)
 end
@@ -267,27 +158,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.WeightedCluster.ClusterWeight do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          weight: Google.Protobuf.UInt32Value.t() | nil,
-          metadata_match: Envoy.Config.Core.V4alpha.Metadata.t() | nil,
-          request_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          request_headers_to_remove: [String.t()],
-          response_headers_to_add: [Envoy.Config.Core.V4alpha.HeaderValueOption.t()],
-          response_headers_to_remove: [String.t()],
-          typed_per_filter_config: %{String.t() => Google.Protobuf.Any.t() | nil}
-        }
-  defstruct [
-    :name,
-    :weight,
-    :metadata_match,
-    :request_headers_to_add,
-    :request_headers_to_remove,
-    :response_headers_to_add,
-    :response_headers_to_remove,
-    :typed_per_filter_config
-  ]
 
   field(:name, 1, type: :string)
   field(:weight, 2, type: Google.Protobuf.UInt32Value)
@@ -318,13 +188,6 @@ defmodule Envoy.Config.Route.V4alpha.WeightedCluster do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          clusters: [Envoy.Config.Route.V4alpha.WeightedCluster.ClusterWeight.t()],
-          total_weight: Google.Protobuf.UInt32Value.t() | nil,
-          runtime_key_prefix: String.t()
-        }
-  defstruct [:clusters, :total_weight, :runtime_key_prefix]
-
   field(:clusters, 1,
     repeated: true,
     type: Envoy.Config.Route.V4alpha.WeightedCluster.ClusterWeight
@@ -337,20 +200,11 @@ end
 defmodule Envoy.Config.Route.V4alpha.RouteMatch.GrpcRouteMatchOptions do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Route.V4alpha.RouteMatch.TlsContextMatchOptions do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          presented: Google.Protobuf.BoolValue.t() | nil,
-          validated: Google.Protobuf.BoolValue.t() | nil
-        }
-  defstruct [:presented, :validated]
 
   field(:presented, 1, type: Google.Protobuf.BoolValue)
   field(:validated, 2, type: Google.Protobuf.BoolValue)
@@ -359,40 +213,21 @@ end
 defmodule Envoy.Config.Route.V4alpha.RouteMatch.ConnectMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Route.V4alpha.RouteMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          path_specifier: {atom, any},
-          case_sensitive: Google.Protobuf.BoolValue.t() | nil,
-          runtime_fraction: Envoy.Config.Core.V4alpha.RuntimeFractionalPercent.t() | nil,
-          headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()],
-          query_parameters: [Envoy.Config.Route.V4alpha.QueryParameterMatcher.t()],
-          grpc: Envoy.Config.Route.V4alpha.RouteMatch.GrpcRouteMatchOptions.t() | nil,
-          tls_context: Envoy.Config.Route.V4alpha.RouteMatch.TlsContextMatchOptions.t() | nil
-        }
-  defstruct [
-    :path_specifier,
-    :case_sensitive,
-    :runtime_fraction,
-    :headers,
-    :query_parameters,
-    :grpc,
-    :tls_context
-  ]
-
   oneof(:path_specifier, 0)
   field(:prefix, 1, type: :string, oneof: 0)
   field(:path, 2, type: :string, oneof: 0)
   field(:safe_regex, 10, type: Envoy.Type.Matcher.V4alpha.RegexMatcher, oneof: 0)
 
-  field(:connect_matcher, 12, type: Envoy.Config.Route.V4alpha.RouteMatch.ConnectMatcher, oneof: 0)
+  field(:connect_matcher, 12,
+    type: Envoy.Config.Route.V4alpha.RouteMatch.ConnectMatcher,
+    oneof: 0
+  )
 
   field(:case_sensitive, 4, type: Google.Protobuf.BoolValue)
   field(:runtime_fraction, 9, type: Envoy.Config.Core.V4alpha.RuntimeFractionalPercent)
@@ -410,27 +245,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.CorsPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          enabled_specifier: {atom, any},
-          allow_origin_string_match: [Envoy.Type.Matcher.V4alpha.StringMatcher.t()],
-          allow_methods: String.t(),
-          allow_headers: String.t(),
-          expose_headers: String.t(),
-          max_age: String.t(),
-          allow_credentials: Google.Protobuf.BoolValue.t() | nil,
-          shadow_enabled: Envoy.Config.Core.V4alpha.RuntimeFractionalPercent.t() | nil
-        }
-  defstruct [
-    :enabled_specifier,
-    :allow_origin_string_match,
-    :allow_methods,
-    :allow_headers,
-    :expose_headers,
-    :max_age,
-    :allow_credentials,
-    :shadow_enabled
-  ]
 
   oneof(:enabled_specifier, 0)
 
@@ -452,13 +266,6 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.RequestMirrorPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          cluster: String.t(),
-          runtime_fraction: Envoy.Config.Core.V4alpha.RuntimeFractionalPercent.t() | nil,
-          trace_sampled: Google.Protobuf.BoolValue.t() | nil
-        }
-  defstruct [:cluster, :runtime_fraction, :trace_sampled]
-
   field(:cluster, 1, type: :string)
   field(:runtime_fraction, 3, type: Envoy.Config.Core.V4alpha.RuntimeFractionalPercent)
   field(:trace_sampled, 4, type: Google.Protobuf.BoolValue)
@@ -468,12 +275,6 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.Header do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          header_name: String.t(),
-          regex_rewrite: Envoy.Type.Matcher.V4alpha.RegexMatchAndSubstitute.t() | nil
-        }
-  defstruct [:header_name, :regex_rewrite]
-
   field(:header_name, 1, type: :string)
   field(:regex_rewrite, 2, type: Envoy.Type.Matcher.V4alpha.RegexMatchAndSubstitute)
 end
@@ -481,13 +282,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.Cookie do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t(),
-          ttl: Google.Protobuf.Duration.t() | nil,
-          path: String.t()
-        }
-  defstruct [:name, :ttl, :path]
 
   field(:name, 1, type: :string)
   field(:ttl, 2, type: Google.Protobuf.Duration)
@@ -498,22 +292,12 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.ConnectionProperties
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          source_ip: boolean
-        }
-  defstruct [:source_ip]
-
   field(:source_ip, 1, type: :bool)
 end
 
 defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.QueryParameter do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          name: String.t()
-        }
-  defstruct [:name]
 
   field(:name, 1, type: :string)
 end
@@ -522,23 +306,12 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.FilterState do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          key: String.t()
-        }
-  defstruct [:key]
-
   field(:key, 1, type: :string)
 end
 
 defmodule Envoy.Config.Route.V4alpha.RouteAction.HashPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          policy_specifier: {atom, any},
-          terminal: boolean
-        }
-  defstruct [:policy_specifier, :terminal]
 
   oneof(:policy_specifier, 0)
   field(:header, 1, type: Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.Header, oneof: 0)
@@ -566,12 +339,6 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.UpgradeConfig.ConnectConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          proxy_protocol_config: Envoy.Config.Core.V4alpha.ProxyProtocolConfig.t() | nil,
-          allow_post: boolean
-        }
-  defstruct [:proxy_protocol_config, :allow_post]
-
   field(:proxy_protocol_config, 1, type: Envoy.Config.Core.V4alpha.ProxyProtocolConfig)
   field(:allow_post, 2, type: :bool)
 end
@@ -579,14 +346,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RouteAction.UpgradeConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          upgrade_type: String.t(),
-          enabled: Google.Protobuf.BoolValue.t() | nil,
-          connect_config:
-            Envoy.Config.Route.V4alpha.RouteAction.UpgradeConfig.ConnectConfig.t() | nil
-        }
-  defstruct [:upgrade_type, :enabled, :connect_config]
 
   field(:upgrade_type, 1, type: :string)
   field(:enabled, 2, type: Google.Protobuf.BoolValue)
@@ -600,13 +359,6 @@ defmodule Envoy.Config.Route.V4alpha.RouteAction.MaxStreamDuration do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          max_stream_duration: Google.Protobuf.Duration.t() | nil,
-          grpc_timeout_header_max: Google.Protobuf.Duration.t() | nil,
-          grpc_timeout_header_offset: Google.Protobuf.Duration.t() | nil
-        }
-  defstruct [:max_stream_duration, :grpc_timeout_header_max, :grpc_timeout_header_offset]
-
   field(:max_stream_duration, 1, type: Google.Protobuf.Duration)
   field(:grpc_timeout_header_max, 2, type: Google.Protobuf.Duration)
   field(:grpc_timeout_header_offset, 3, type: Google.Protobuf.Duration)
@@ -615,52 +367,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RouteAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          cluster_specifier: {atom, any},
-          host_rewrite_specifier: {atom, any},
-          cluster_not_found_response_code:
-            Envoy.Config.Route.V4alpha.RouteAction.ClusterNotFoundResponseCode.t(),
-          metadata_match: Envoy.Config.Core.V4alpha.Metadata.t() | nil,
-          prefix_rewrite: String.t(),
-          regex_rewrite: Envoy.Type.Matcher.V4alpha.RegexMatchAndSubstitute.t() | nil,
-          timeout: Google.Protobuf.Duration.t() | nil,
-          idle_timeout: Google.Protobuf.Duration.t() | nil,
-          retry_policy: Envoy.Config.Route.V4alpha.RetryPolicy.t() | nil,
-          retry_policy_typed_config: Google.Protobuf.Any.t() | nil,
-          request_mirror_policies: [
-            Envoy.Config.Route.V4alpha.RouteAction.RequestMirrorPolicy.t()
-          ],
-          priority: Envoy.Config.Core.V4alpha.RoutingPriority.t(),
-          rate_limits: [Envoy.Config.Route.V4alpha.RateLimit.t()],
-          hash_policy: [Envoy.Config.Route.V4alpha.RouteAction.HashPolicy.t()],
-          cors: Envoy.Config.Route.V4alpha.CorsPolicy.t() | nil,
-          upgrade_configs: [Envoy.Config.Route.V4alpha.RouteAction.UpgradeConfig.t()],
-          internal_redirect_policy: Envoy.Config.Route.V4alpha.InternalRedirectPolicy.t() | nil,
-          hedge_policy: Envoy.Config.Route.V4alpha.HedgePolicy.t() | nil,
-          max_stream_duration: Envoy.Config.Route.V4alpha.RouteAction.MaxStreamDuration.t() | nil
-        }
-  defstruct [
-    :cluster_specifier,
-    :host_rewrite_specifier,
-    :cluster_not_found_response_code,
-    :metadata_match,
-    :prefix_rewrite,
-    :regex_rewrite,
-    :timeout,
-    :idle_timeout,
-    :retry_policy,
-    :retry_policy_typed_config,
-    :request_mirror_policies,
-    :priority,
-    :rate_limits,
-    :hash_policy,
-    :cors,
-    :upgrade_configs,
-    :internal_redirect_policy,
-    :hedge_policy,
-    :max_stream_duration
-  ]
 
   oneof(:cluster_specifier, 0)
   oneof(:host_rewrite_specifier, 1)
@@ -714,12 +420,6 @@ defmodule Envoy.Config.Route.V4alpha.RetryPolicy.RetryPriority do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
-
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
   field(:typed_config, 3, type: Google.Protobuf.Any, oneof: 0)
@@ -728,12 +428,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RetryPolicy.RetryHostPredicate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          name: String.t()
-        }
-  defstruct [:config_type, :name]
 
   oneof(:config_type, 0)
   field(:name, 1, type: :string)
@@ -744,12 +438,6 @@ defmodule Envoy.Config.Route.V4alpha.RetryPolicy.RetryBackOff do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          base_interval: Google.Protobuf.Duration.t() | nil,
-          max_interval: Google.Protobuf.Duration.t() | nil
-        }
-  defstruct [:base_interval, :max_interval]
-
   field(:base_interval, 1, type: Google.Protobuf.Duration)
   field(:max_interval, 2, type: Google.Protobuf.Duration)
 end
@@ -758,12 +446,6 @@ defmodule Envoy.Config.Route.V4alpha.RetryPolicy.ResetHeader do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          name: String.t(),
-          format: Envoy.Config.Route.V4alpha.RetryPolicy.ResetHeaderFormat.t()
-        }
-  defstruct [:name, :format]
-
   field(:name, 1, type: :string)
   field(:format, 2, type: Envoy.Config.Route.V4alpha.RetryPolicy.ResetHeaderFormat, enum: true)
 end
@@ -771,12 +453,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RetryPolicy.RateLimitedRetryBackOff do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          reset_headers: [Envoy.Config.Route.V4alpha.RetryPolicy.ResetHeader.t()],
-          max_interval: Google.Protobuf.Duration.t() | nil
-        }
-  defstruct [:reset_headers, :max_interval]
 
   field(:reset_headers, 1,
     repeated: true,
@@ -789,34 +465,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RetryPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          retry_on: String.t(),
-          max_retries: Google.Protobuf.UInt32Value.t() | nil,
-          per_try_timeout: Google.Protobuf.Duration.t() | nil,
-          retry_priority: Envoy.Config.Route.V4alpha.RetryPolicy.RetryPriority.t() | nil,
-          retry_host_predicate: [Envoy.Config.Route.V4alpha.RetryPolicy.RetryHostPredicate.t()],
-          host_selection_retry_max_attempts: integer,
-          retriable_status_codes: [non_neg_integer],
-          retry_back_off: Envoy.Config.Route.V4alpha.RetryPolicy.RetryBackOff.t() | nil,
-          rate_limited_retry_back_off:
-            Envoy.Config.Route.V4alpha.RetryPolicy.RateLimitedRetryBackOff.t() | nil,
-          retriable_headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()],
-          retriable_request_headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()]
-        }
-  defstruct [
-    :retry_on,
-    :max_retries,
-    :per_try_timeout,
-    :retry_priority,
-    :retry_host_predicate,
-    :host_selection_retry_max_attempts,
-    :retriable_status_codes,
-    :retry_back_off,
-    :rate_limited_retry_back_off,
-    :retriable_headers,
-    :retriable_request_headers
-  ]
 
   field(:retry_on, 1, type: :string)
   field(:max_retries, 2, type: Google.Protobuf.UInt32Value)
@@ -848,13 +496,6 @@ defmodule Envoy.Config.Route.V4alpha.HedgePolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          initial_requests: Google.Protobuf.UInt32Value.t() | nil,
-          additional_request_chance: Envoy.Type.V3.FractionalPercent.t() | nil,
-          hedge_on_per_try_timeout: boolean
-        }
-  defstruct [:initial_requests, :additional_request_chance, :hedge_on_per_try_timeout]
-
   field(:initial_requests, 1, type: Google.Protobuf.UInt32Value)
   field(:additional_request_chance, 2, type: Envoy.Type.V3.FractionalPercent)
   field(:hedge_on_per_try_timeout, 3, type: :bool)
@@ -863,23 +504,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RedirectAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          scheme_rewrite_specifier: {atom, any},
-          path_rewrite_specifier: {atom, any},
-          host_redirect: String.t(),
-          port_redirect: non_neg_integer,
-          response_code: Envoy.Config.Route.V4alpha.RedirectAction.RedirectResponseCode.t(),
-          strip_query: boolean
-        }
-  defstruct [
-    :scheme_rewrite_specifier,
-    :path_rewrite_specifier,
-    :host_redirect,
-    :port_redirect,
-    :response_code,
-    :strip_query
-  ]
 
   oneof(:scheme_rewrite_specifier, 0)
   oneof(:path_rewrite_specifier, 1)
@@ -903,12 +527,6 @@ defmodule Envoy.Config.Route.V4alpha.DirectResponseAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          status: non_neg_integer,
-          body: Envoy.Config.Core.V4alpha.DataSource.t() | nil
-        }
-  defstruct [:status, :body]
-
   field(:status, 1, type: :uint32)
   field(:body, 2, type: Envoy.Config.Core.V4alpha.DataSource)
 end
@@ -917,12 +535,6 @@ defmodule Envoy.Config.Route.V4alpha.Decorator do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          operation: String.t(),
-          propagate: Google.Protobuf.BoolValue.t() | nil
-        }
-  defstruct [:operation, :propagate]
-
   field(:operation, 1, type: :string)
   field(:propagate, 2, type: Google.Protobuf.BoolValue)
 end
@@ -930,14 +542,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.Tracing do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          client_sampling: Envoy.Type.V3.FractionalPercent.t() | nil,
-          random_sampling: Envoy.Type.V3.FractionalPercent.t() | nil,
-          overall_sampling: Envoy.Type.V3.FractionalPercent.t() | nil,
-          custom_tags: [Envoy.Type.Tracing.V3.CustomTag.t()]
-        }
-  defstruct [:client_sampling, :random_sampling, :overall_sampling, :custom_tags]
 
   field(:client_sampling, 1, type: Envoy.Type.V3.FractionalPercent)
   field(:random_sampling, 2, type: Envoy.Type.V3.FractionalPercent)
@@ -949,12 +553,6 @@ defmodule Envoy.Config.Route.V4alpha.VirtualCluster do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()],
-          name: String.t()
-        }
-  defstruct [:headers, :name]
-
   field(:headers, 4, repeated: true, type: Envoy.Config.Route.V4alpha.HeaderMatcher)
   field(:name, 2, type: :string)
 end
@@ -962,29 +560,16 @@ end
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.SourceCluster do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.DestinationCluster do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.RequestHeaders do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          header_name: String.t(),
-          descriptor_key: String.t(),
-          skip_if_absent: boolean
-        }
-  defstruct [:header_name, :descriptor_key, :skip_if_absent]
 
   field(:header_name, 1, type: :string)
   field(:descriptor_key, 2, type: :string)
@@ -994,20 +579,11 @@ end
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.RemoteAddress do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.GenericKey do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          descriptor_value: String.t(),
-          descriptor_key: String.t()
-        }
-  defstruct [:descriptor_value, :descriptor_key]
 
   field(:descriptor_value, 1, type: :string)
   field(:descriptor_key, 2, type: :string)
@@ -1016,13 +592,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.HeaderValueMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          descriptor_value: String.t(),
-          expect_match: Google.Protobuf.BoolValue.t() | nil,
-          headers: [Envoy.Config.Route.V4alpha.HeaderMatcher.t()]
-        }
-  defstruct [:descriptor_value, :expect_match, :headers]
 
   field(:descriptor_value, 1, type: :string)
   field(:expect_match, 2, type: Google.Protobuf.BoolValue)
@@ -1033,13 +602,6 @@ defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.DynamicMetaData do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          descriptor_key: String.t(),
-          metadata_key: Envoy.Type.Metadata.V3.MetadataKey.t() | nil,
-          default_value: String.t()
-        }
-  defstruct [:descriptor_key, :metadata_key, :default_value]
-
   field(:descriptor_key, 1, type: :string)
   field(:metadata_key, 2, type: Envoy.Type.Metadata.V3.MetadataKey)
   field(:default_value, 3, type: :string)
@@ -1048,14 +610,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action.MetaData do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          descriptor_key: String.t(),
-          metadata_key: Envoy.Type.Metadata.V3.MetadataKey.t() | nil,
-          default_value: String.t(),
-          source: Envoy.Config.Route.V4alpha.RateLimit.Action.MetaData.Source.t()
-        }
-  defstruct [:descriptor_key, :metadata_key, :default_value, :source]
 
   field(:descriptor_key, 1, type: :string)
   field(:metadata_key, 2, type: Envoy.Type.Metadata.V3.MetadataKey)
@@ -1066,11 +620,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Action do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          action_specifier: {atom, any}
-        }
-  defstruct [:action_specifier]
 
   oneof(:action_specifier, 0)
 
@@ -1109,22 +658,12 @@ defmodule Envoy.Config.Route.V4alpha.RateLimit.Override.DynamicMetadata do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          metadata_key: Envoy.Type.Metadata.V3.MetadataKey.t() | nil
-        }
-  defstruct [:metadata_key]
-
   field(:metadata_key, 1, type: Envoy.Type.Metadata.V3.MetadataKey)
 end
 
 defmodule Envoy.Config.Route.V4alpha.RateLimit.Override do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          override_specifier: {atom, any}
-        }
-  defstruct [:override_specifier]
 
   oneof(:override_specifier, 0)
 
@@ -1138,14 +677,6 @@ defmodule Envoy.Config.Route.V4alpha.RateLimit do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          stage: Google.Protobuf.UInt32Value.t() | nil,
-          disable_key: String.t(),
-          actions: [Envoy.Config.Route.V4alpha.RateLimit.Action.t()],
-          limit: Envoy.Config.Route.V4alpha.RateLimit.Override.t() | nil
-        }
-  defstruct [:stage, :disable_key, :actions, :limit]
-
   field(:stage, 1, type: Google.Protobuf.UInt32Value)
   field(:disable_key, 2, type: :string)
   field(:actions, 3, repeated: true, type: Envoy.Config.Route.V4alpha.RateLimit.Action)
@@ -1155,13 +686,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.HeaderMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          header_match_specifier: {atom, any},
-          name: String.t(),
-          invert_match: boolean
-        }
-  defstruct [:header_match_specifier, :name, :invert_match]
 
   oneof(:header_match_specifier, 0)
   field(:name, 1, type: :string)
@@ -1179,12 +703,6 @@ defmodule Envoy.Config.Route.V4alpha.QueryParameterMatcher do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          query_parameter_match_specifier: {atom, any},
-          name: String.t()
-        }
-  defstruct [:query_parameter_match_specifier, :name]
-
   oneof(:query_parameter_match_specifier, 0)
   field(:name, 1, type: :string)
   field(:string_match, 5, type: Envoy.Type.Matcher.V4alpha.StringMatcher, oneof: 0)
@@ -1195,19 +713,6 @@ defmodule Envoy.Config.Route.V4alpha.InternalRedirectPolicy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          max_internal_redirects: Google.Protobuf.UInt32Value.t() | nil,
-          redirect_response_codes: [non_neg_integer],
-          predicates: [Envoy.Config.Core.V4alpha.TypedExtensionConfig.t()],
-          allow_cross_scheme_redirect: boolean
-        }
-  defstruct [
-    :max_internal_redirects,
-    :redirect_response_codes,
-    :predicates,
-    :allow_cross_scheme_redirect
-  ]
-
   field(:max_internal_redirects, 1, type: Google.Protobuf.UInt32Value)
   field(:redirect_response_codes, 2, repeated: true, type: :uint32)
   field(:predicates, 3, repeated: true, type: Envoy.Config.Core.V4alpha.TypedExtensionConfig)
@@ -1217,12 +722,6 @@ end
 defmodule Envoy.Config.Route.V4alpha.FilterConfig do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          config: Google.Protobuf.Any.t() | nil,
-          is_optional: boolean
-        }
-  defstruct [:config, :is_optional]
 
   field(:config, 1, type: Google.Protobuf.Any)
   field(:is_optional, 2, type: :bool)

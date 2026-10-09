@@ -2,12 +2,6 @@ defmodule Envoy.Extensions.AccessLoggers.File.V3.FileAccessLog do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          access_log_format: {atom, any},
-          path: String.t()
-        }
-  defstruct [:access_log_format, :path]
-
   oneof(:access_log_format, 0)
   field(:path, 1, type: :string)
   field(:format, 2, type: :string, deprecated: true, oneof: 0)

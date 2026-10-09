@@ -2,12 +2,6 @@ defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteConfiguration do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          name: String.t(),
-          routes: [Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.Route.t()]
-        }
-  defstruct [:name, :routes]
-
   field(:name, 1, type: :string)
   field(:routes, 2, repeated: true, type: Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.Route)
 end
@@ -16,12 +10,6 @@ defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.Route do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          match: Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteMatch.t() | nil,
-          route: Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteAction.t() | nil
-        }
-  defstruct [:match, :route]
-
   field(:match, 1, type: Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteMatch)
   field(:route, 2, type: Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteAction)
 end
@@ -29,13 +17,6 @@ end
 defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteMatch do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          match_specifier: {atom, any},
-          invert: boolean,
-          headers: [Envoy.Api.V2.Route.HeaderMatcher.t()]
-        }
-  defstruct [:match_specifier, :invert, :headers]
 
   oneof(:match_specifier, 0)
   field(:method_name, 1, type: :string, oneof: 0)
@@ -47,14 +28,6 @@ end
 defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.RouteAction do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          cluster_specifier: {atom, any},
-          metadata_match: Envoy.Api.V2.Core.Metadata.t() | nil,
-          rate_limits: [Envoy.Api.V2.Route.RateLimit.t()],
-          strip_service_name: boolean
-        }
-  defstruct [:cluster_specifier, :metadata_match, :rate_limits, :strip_service_name]
 
   oneof(:cluster_specifier, 0)
   field(:cluster, 1, type: :string, oneof: 0)
@@ -74,13 +47,6 @@ defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.WeightedCluster.Clust
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          name: String.t(),
-          weight: Google.Protobuf.UInt32Value.t() | nil,
-          metadata_match: Envoy.Api.V2.Core.Metadata.t() | nil
-        }
-  defstruct [:name, :weight, :metadata_match]
-
   field(:name, 1, type: :string)
   field(:weight, 2, type: Google.Protobuf.UInt32Value)
   field(:metadata_match, 3, type: Envoy.Api.V2.Core.Metadata)
@@ -89,13 +55,6 @@ end
 defmodule Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.WeightedCluster do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          clusters: [
-            Envoy.Config.Filter.Network.ThriftProxy.V2alpha1.WeightedCluster.ClusterWeight.t()
-          ]
-        }
-  defstruct [:clusters]
 
   field(:clusters, 1,
     repeated: true,

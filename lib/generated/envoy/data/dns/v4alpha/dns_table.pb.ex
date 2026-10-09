@@ -2,22 +2,12 @@ defmodule Envoy.Data.Dns.V4alpha.DnsTable.AddressList do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          address: [String.t()]
-        }
-  defstruct [:address]
-
   field(:address, 1, repeated: true, type: :string)
 end
 
 defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceProtocol do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          protocol_config: {atom, any}
-        }
-  defstruct [:protocol_config]
 
   oneof(:protocol_config, 0)
   field(:number, 1, type: :uint32, oneof: 0)
@@ -27,14 +17,6 @@ end
 defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceTarget do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          endpoint_type: {atom, any},
-          priority: non_neg_integer,
-          weight: non_neg_integer,
-          port: non_neg_integer
-        }
-  defstruct [:endpoint_type, :priority, :weight, :port]
 
   oneof(:endpoint_type, 0)
   field(:host_name, 1, type: :string, oneof: 0)
@@ -48,14 +30,6 @@ defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsService do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          service_name: String.t(),
-          protocol: Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceProtocol.t() | nil,
-          ttl: Google.Protobuf.Duration.t() | nil,
-          targets: [Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceTarget.t()]
-        }
-  defstruct [:service_name, :protocol, :ttl, :targets]
-
   field(:service_name, 1, type: :string)
   field(:protocol, 2, type: Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceProtocol)
   field(:ttl, 3, type: Google.Protobuf.Duration)
@@ -66,22 +40,12 @@ defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsServiceList do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          services: [Envoy.Data.Dns.V4alpha.DnsTable.DnsService.t()]
-        }
-  defstruct [:services]
-
   field(:services, 1, repeated: true, type: Envoy.Data.Dns.V4alpha.DnsTable.DnsService)
 end
 
 defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsEndpoint do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          endpoint_config: {atom, any}
-        }
-  defstruct [:endpoint_config]
 
   oneof(:endpoint_config, 0)
   field(:address_list, 1, type: Envoy.Data.Dns.V4alpha.DnsTable.AddressList, oneof: 0)
@@ -93,13 +57,6 @@ defmodule Envoy.Data.Dns.V4alpha.DnsTable.DnsVirtualDomain do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          name: String.t(),
-          endpoint: Envoy.Data.Dns.V4alpha.DnsTable.DnsEndpoint.t() | nil,
-          answer_ttl: Google.Protobuf.Duration.t() | nil
-        }
-  defstruct [:name, :endpoint, :answer_ttl]
-
   field(:name, 1, type: :string)
   field(:endpoint, 2, type: Envoy.Data.Dns.V4alpha.DnsTable.DnsEndpoint)
   field(:answer_ttl, 3, type: Google.Protobuf.Duration)
@@ -108,13 +65,6 @@ end
 defmodule Envoy.Data.Dns.V4alpha.DnsTable do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          external_retry_count: non_neg_integer,
-          virtual_domains: [Envoy.Data.Dns.V4alpha.DnsTable.DnsVirtualDomain.t()],
-          known_suffixes: [Envoy.Type.Matcher.V4alpha.StringMatcher.t()]
-        }
-  defstruct [:external_retry_count, :virtual_domains, :known_suffixes]
 
   field(:external_retry_count, 1, type: :uint32)
 

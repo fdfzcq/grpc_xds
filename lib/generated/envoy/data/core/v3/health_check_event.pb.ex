@@ -2,8 +2,6 @@ defmodule Envoy.Data.Core.V3.HealthCheckFailureType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :ACTIVE | :PASSIVE | :NETWORK | :NETWORK_TIMEOUT
-
   field(:ACTIVE, 0)
   field(:PASSIVE, 1)
   field(:NETWORK, 2)
@@ -14,8 +12,6 @@ defmodule Envoy.Data.Core.V3.HealthCheckerType do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :HTTP | :TCP | :GRPC | :REDIS
-
   field(:HTTP, 0)
   field(:TCP, 1)
   field(:GRPC, 2)
@@ -25,15 +21,6 @@ end
 defmodule Envoy.Data.Core.V3.HealthCheckEvent do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          event: {atom, any},
-          health_checker_type: Envoy.Data.Core.V3.HealthCheckerType.t(),
-          host: Envoy.Config.Core.V3.Address.t() | nil,
-          cluster_name: String.t(),
-          timestamp: Google.Protobuf.Timestamp.t() | nil
-        }
-  defstruct [:event, :health_checker_type, :host, :cluster_name, :timestamp]
 
   oneof(:event, 0)
   field(:health_checker_type, 1, type: Envoy.Data.Core.V3.HealthCheckerType, enum: true)
@@ -51,22 +38,12 @@ defmodule Envoy.Data.Core.V3.HealthCheckEjectUnhealthy do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          failure_type: Envoy.Data.Core.V3.HealthCheckFailureType.t()
-        }
-  defstruct [:failure_type]
-
   field(:failure_type, 1, type: Envoy.Data.Core.V3.HealthCheckFailureType, enum: true)
 end
 
 defmodule Envoy.Data.Core.V3.HealthCheckAddHealthy do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          first_check: boolean
-        }
-  defstruct [:first_check]
 
   field(:first_check, 1, type: :bool)
 end
@@ -75,12 +52,6 @@ defmodule Envoy.Data.Core.V3.HealthCheckFailure do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          failure_type: Envoy.Data.Core.V3.HealthCheckFailureType.t(),
-          first_check: boolean
-        }
-  defstruct [:failure_type, :first_check]
-
   field(:failure_type, 1, type: Envoy.Data.Core.V3.HealthCheckFailureType, enum: true)
   field(:first_check, 2, type: :bool)
 end
@@ -88,15 +59,9 @@ end
 defmodule Envoy.Data.Core.V3.DegradedHealthyHost do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end
 
 defmodule Envoy.Data.Core.V3.NoLongerDegradedHost do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{}
-  defstruct []
 end

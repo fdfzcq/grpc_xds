@@ -2,8 +2,6 @@ defmodule Envoy.Api.V2.Auth.TlsParameters.TlsProtocol do
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :TLS_AUTO | :TLSv1_0 | :TLSv1_1 | :TLSv1_2 | :TLSv1_3
-
   field(:TLS_AUTO, 0)
   field(:TLSv1_0, 1)
   field(:TLSv1_1, 2)
@@ -15,8 +13,6 @@ defmodule Envoy.Api.V2.Auth.CertificateValidationContext.TrustChainVerification 
   @moduledoc false
   use Protobuf, enum: true, syntax: :proto3
 
-  @type t :: integer | :VERIFY_TRUST_CHAIN | :ACCEPT_UNTRUSTED
-
   field(:VERIFY_TRUST_CHAIN, 0)
   field(:ACCEPT_UNTRUSTED, 1)
 end
@@ -24,19 +20,6 @@ end
 defmodule Envoy.Api.V2.Auth.TlsParameters do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          tls_minimum_protocol_version: Envoy.Api.V2.Auth.TlsParameters.TlsProtocol.t(),
-          tls_maximum_protocol_version: Envoy.Api.V2.Auth.TlsParameters.TlsProtocol.t(),
-          cipher_suites: [String.t()],
-          ecdh_curves: [String.t()]
-        }
-  defstruct [
-    :tls_minimum_protocol_version,
-    :tls_maximum_protocol_version,
-    :cipher_suites,
-    :ecdh_curves
-  ]
 
   field(:tls_minimum_protocol_version, 1,
     type: Envoy.Api.V2.Auth.TlsParameters.TlsProtocol,
@@ -56,12 +39,6 @@ defmodule Envoy.Api.V2.Auth.PrivateKeyProvider do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          config_type: {atom, any},
-          provider_name: String.t()
-        }
-  defstruct [:config_type, :provider_name]
-
   oneof(:config_type, 0)
   field(:provider_name, 1, type: :string)
   field(:config, 2, type: Google.Protobuf.Struct, deprecated: true, oneof: 0)
@@ -71,23 +48,6 @@ end
 defmodule Envoy.Api.V2.Auth.TlsCertificate do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          certificate_chain: Envoy.Api.V2.Core.DataSource.t() | nil,
-          private_key: Envoy.Api.V2.Core.DataSource.t() | nil,
-          private_key_provider: Envoy.Api.V2.Auth.PrivateKeyProvider.t() | nil,
-          password: Envoy.Api.V2.Core.DataSource.t() | nil,
-          ocsp_staple: Envoy.Api.V2.Core.DataSource.t() | nil,
-          signed_certificate_timestamp: [Envoy.Api.V2.Core.DataSource.t()]
-        }
-  defstruct [
-    :certificate_chain,
-    :private_key,
-    :private_key_provider,
-    :password,
-    :ocsp_staple,
-    :signed_certificate_timestamp
-  ]
 
   field(:certificate_chain, 1, type: Envoy.Api.V2.Core.DataSource)
   field(:private_key, 2, type: Envoy.Api.V2.Core.DataSource)
@@ -101,43 +61,12 @@ defmodule Envoy.Api.V2.Auth.TlsSessionTicketKeys do
   @moduledoc false
   use Protobuf, syntax: :proto3
 
-  @type t :: %__MODULE__{
-          keys: [Envoy.Api.V2.Core.DataSource.t()]
-        }
-  defstruct [:keys]
-
   field(:keys, 1, repeated: true, type: Envoy.Api.V2.Core.DataSource)
 end
 
 defmodule Envoy.Api.V2.Auth.CertificateValidationContext do
   @moduledoc false
   use Protobuf, syntax: :proto3
-
-  @type t :: %__MODULE__{
-          trusted_ca: Envoy.Api.V2.Core.DataSource.t() | nil,
-          verify_certificate_spki: [String.t()],
-          verify_certificate_hash: [String.t()],
-          verify_subject_alt_name: [String.t()],
-          match_subject_alt_names: [Envoy.Type.Matcher.StringMatcher.t()],
-          require_ocsp_staple: Google.Protobuf.BoolValue.t() | nil,
-          require_signed_certificate_timestamp: Google.Protobuf.BoolValue.t() | nil,
-          crl: Envoy.Api.V2.Core.DataSource.t() | nil,
-          allow_expired_certificate: boolean,
-          trust_chain_verification:
-            Envoy.Api.V2.Auth.CertificateValidationContext.TrustChainVerification.t()
-        }
-  defstruct [
-    :trusted_ca,
-    :verify_certificate_spki,
-    :verify_certificate_hash,
-    :verify_subject_alt_name,
-    :match_subject_alt_names,
-    :require_ocsp_staple,
-    :require_signed_certificate_timestamp,
-    :crl,
-    :allow_expired_certificate,
-    :trust_chain_verification
-  ]
 
   field(:trusted_ca, 1, type: Envoy.Api.V2.Core.DataSource)
   field(:verify_certificate_spki, 3, repeated: true, type: :string)
