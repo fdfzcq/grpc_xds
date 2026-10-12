@@ -23,6 +23,7 @@ defmodule GrpcXds.MixProject do
     [
       {:grpc, github: "elixir-grpc/grpc", branch: "master", sparse: "grpc"},
       {:gun, "~> 2.4"},
+      {:castore, "~> 1.0"},
       {:grpc_server, "~> 1.0.5", only: :test}
     ]
   end
