@@ -1,178 +1,298 @@
 defmodule GRPC.XDS.ADS.Stream do
-  use GenServer
-  defstruct [:channel, :stream, :response, :resources, :version]
+  @moduledoc false
+  alias GRPC.XDS.ADS.{Request, Response, TypeMap}
 
-  def init(channel) do
-    {:ok, %__MODULE__{channel: channel, resources: %{}}}
-  end
-
-  def handle_info(info), do: IO.inspect(info)
-
-  def handle_call({:get_resource, resource_name, type}, _from, state) do
-    {:reply, :ok, state |> Map.get(:resources, %{}) |> Map.get({type, resource_name})}
-  end
-
-  def handle_call({:send_discovery_request, resources}, _from, state) do
-    new_state =
-      state
-      |> listener_resources(resources)
-      |> route_configuration_resources(resources)
-      # |> cluster_resources(resources)
-      |> cluster_load_assignment_resouces(resources)
-
-    addresses = extract_addresses(new_state, resources)
-
-    {:reply, {:ok, addresses}, new_state}
-  end
-
-  def handle_info(_msg, state) do
-    {:noreply, state}
-  end
-
-  # to be moved
-
-  # 60 minutes timeout
-  defp new_stream(channel),
-    do: GRPC.XDS.ADS.Stub.stream_aggregated_resources(channel, timeout: 600 * 1000)
-
-  defp listener_resources(state, resources) do
-    stream = new_stream(Map.get(state, :channel))
-    req = GRPC.XDS.ADS.Request.discovery_request(:listener, resources, Map.get(state, :version))
-    GRPC.Stub.send_request(stream, req)
-    {:ok, response} = wait_for_response(stream)
-    GRPC.Stub.end_stream(stream)
-    update_state_from_response(state, response)
-  end
-
-  defp route_configuration_resources(state, resources) do
-    stream = new_stream(Map.get(state, :channel))
-
-    route_configuration_names =
-      resources
-      |> Enum.map(fn r -> route_conf_from_listener_resources(state, r) end)
-      |> Map.new()
-
-    req =
-      GRPC.XDS.ADS.Request.discovery_request(
-        :route_configuration,
-        Map.values(route_configuration_names),
-        nil
-      )
-
-    GRPC.Stub.send_request(stream, req)
-    {:ok, response} = wait_for_response(stream)
-    GRPC.Stub.end_stream(stream)
-    update_state_from_response(state, response)
-  end
-
-  defp route_conf_from_listener_resources(state, resource_name) do
-    route_conf =
-      state
-      |> Map.get(:resources)
-      |> Map.get({:listener, resource_name})
-      |> GRPC.XDS.ADS.Response.route_conf_name_from_listener_resources()
-
-    {resource_name, route_conf}
-  end
-
-  defp cluster_load_assignment_resouces(state, resources) do
-    stream = new_stream(Map.get(state, :channel))
-    clusters_by_resources = clusters_by_resources(state, resources)
-
-    req =
-      GRPC.XDS.ADS.Request.discovery_request(
-        :cluster_load_assignment,
-        Map.values(clusters_by_resources),
-        nil
-      )
-
-    GRPC.Stub.send_request(stream, req)
-    {:ok, response} = wait_for_response(stream)
-    GRPC.Stub.end_stream(stream)
-    update_state_from_response(state, response)
-  end
-
-  defp clusters_by_resources(state, resources),
-    do: Enum.map(resources, &clusters_by_resource(&1, state)) |> Map.new()
-
-  defp clusters_by_resource(resource, state) do
-    {_, route_conf} = route_conf_from_listener_resources(state, resource)
-
-    {:route, route} =
-      Map.get(state, :resources)
-      |> Map.get({:route_configuration, route_conf})
-      |> Map.get(:virtual_hosts, [%{}])
-      |> hd()
-      |> Map.get(:routes)
-      |> hd()
-      |> Map.get(:action)
-
-    {:cluster, cluster} = Map.get(route, :cluster_specifier)
-    {resource, cluster}
-  end
-
-  defp extract_addresses(state, resources),
-    do: Enum.map(resources, &extract_addresses_for_resource(&1, state)) |> List.flatten()
-
-  defp extract_addresses_for_resource(resource, state) do
-    {_, cluster} = clusters_by_resource(resource, state)
-
-    Map.get(state, :resources)
-    |> Map.get({:cluster_load_assignment, cluster})
-    |> Map.get(:endpoints)
-    |> Enum.max_by(fn e -> Map.get(e, :load_balancing_weight) |> Map.get(:value) end)
-    |> Map.get(:lb_endpoints)
-    |> Enum.map(fn lb_endpoint ->
-      {:endpoint, endpoint} = Map.get(lb_endpoint, :host_identifier)
-      {:socket_address, socket_address} = Map.get(endpoint, :address) |> Map.get(:address)
-      host = Map.get(socket_address, :address)
-      {:port_value, port} = Map.get(socket_address, :port_specifier)
-      {host, port}
+  def lookup(channel, services, opts) do
+    run(channel, opts, fn state ->
+      {addresses, _state} = Enum.map_reduce(services, state, &service_addresses/2)
+      addresses |> List.flatten() |> Enum.uniq()
     end)
   end
 
-  ## private
+  def fetch(channel, type, names, opts) do
+    if TypeMap.type_atom_to_type_url(type) do
+      run(channel, opts, fn state ->
+        {resources, _state} =
+          Enum.map_reduce(names, state, fn name, state ->
+            {resource, state} = resource(state, type, name)
+            {{name, resource}, state}
+          end)
 
-  defp wait_for_response(stream) do
-    res = GRPC.Stub.recv(stream)
+        {:ok, Map.new(resources)}
+      end)
+    else
+      {:error, {:unsupported_resource_type, type}}
+    end
+  end
 
-    case res do
-      {:error, err} ->
-        IO.inspect(Map.get(err, :message), limit: :infinity)
-        IO.inspect(GRPC.Stub.recv(stream))
+  defp run(channel, opts, fun) do
+    timeout = Keyword.get(opts, :timeout, 5_000)
+    node = Request.xds_node(opts)
+
+    stream =
+      GRPC.XDS.ADS.Stub.stream_aggregated_resources(channel,
+        timeout: timeout,
+        metadata: Keyword.get(opts, :metadata, %{})
+      )
+
+    try do
+      fun.(%{
+        stream: stream,
+        node: node,
+        resources: %{},
+        subscriptions: %{},
+        versions: %{},
+        nonces: %{},
+        next: nil,
+        timeout: timeout,
+        deadline: System.monotonic_time(:millisecond) + timeout
+      })
+    rescue
+      error in GRPC.RPCError -> {:error, error}
+      _error in Protobuf.DecodeError -> {:error, :invalid_resource}
+    catch
+      {:xds_error, reason} -> {:error, reason}
+      :exit, reason -> {:error, {:transport_exit, reason}}
+    after
+      GRPC.Stub.cancel(stream)
+    end
+  end
+
+  defp resource(state, type, name) do
+    case Map.fetch(state.resources, {type, name}) do
+      {:ok, resource} ->
+        {resource, state}
+
+      :error ->
+        names = Enum.uniq(Map.get(state.subscriptions, type, []) ++ [name])
+        state = put_in(state.subscriptions[type], names)
+
+        request =
+          Request.discovery_request(type, names, Map.get(state.versions, type, ""),
+            node: state.node,
+            nonce: Map.get(state.nonces, type, "")
+          )
+
+        GRPC.Stub.send_request(state.stream, request)
+        await_resource(state, type, name)
+    end
+  end
+
+  defp await_resource(state, type, name) do
+    if System.monotonic_time(:millisecond) >= state.deadline, do: fail(:timeout)
+    {response, state} = receive_response(state)
+    response_type = TypeMap.type_url_to_type_atom(response.type_url)
+
+    unless Map.has_key?(state.subscriptions, response_type),
+      do: fail({:unexpected_resource_type, response.type_url})
+
+    parsed =
+      try do
+        unless Enum.all?(response.resources, &(&1.type_url == response.type_url)),
+          do: raise(ArgumentError, "resource type does not match response type")
+
+        Response.parse_response(response)
+      rescue
+        error ->
+          nack =
+            Request.discovery_request(
+              response_type,
+              state.subscriptions[response_type],
+              Map.get(state.versions, response_type, ""),
+              node: state.node,
+              nonce: response.nonce
+            )
+
+          GRPC.Stub.send_request(state.stream, %{
+            nack
+            | error_detail: %Google.Rpc.Status{
+                code: 3,
+                message: Exception.message(error)
+              }
+          })
+
+          fail({:invalid_resource, response.type_url})
+      end
+
+    ack =
+      Request.discovery_request(
+        response_type,
+        state.subscriptions[response_type],
+        response.version_info,
+        node: state.node,
+        nonce: response.nonce
+      )
+
+    GRPC.Stub.send_request(state.stream, ack)
+
+    resources =
+      if response_type in [:listener, :cluster] do
+        Map.reject(state.resources, fn {{type, _}, _} -> type == response_type end)
+      else
+        state.resources
+      end
+
+    state = %{
+      state
+      | resources: Map.merge(resources, parsed),
+        versions: Map.put(state.versions, response_type, response.version_info),
+        nonces: Map.put(state.nonces, response_type, response.nonce)
+    }
+
+    case Map.fetch(state.resources, {type, name}) do
+      {:ok, resource} ->
+        {resource, state}
+
+      :error when response_type == type and type in [:listener, :cluster] ->
+        fail({:resource_not_found, type, name})
+
+      :error ->
+        await_resource(state, type, name)
+    end
+  end
+
+  defp receive_response(%{next: nil} = state) do
+    case GRPC.Stub.recv(state.stream, timeout: state.timeout) do
+      {:ok, replies} -> consume(Enumerable.reduce(replies, {:cont, nil}, &suspend/2), state)
+      {:error, reason} -> fail(reason)
+    end
+  end
+
+  defp receive_response(state), do: consume(state.next.({:cont, nil}), state)
+  defp suspend(reply, _acc), do: {:suspend, reply}
+  defp consume({:suspended, {:ok, response}, next}, state), do: {response, %{state | next: next}}
+  defp consume({:suspended, {:error, reason}, _}, _state), do: fail(reason)
+  defp consume(_, _state), do: fail(:stream_closed)
+
+  defp service_addresses(service, state) do
+    {listener, state} = resource(state, :listener, service)
+
+    route =
+      case listener.api_listener do
+        %{
+          api_listener: %{
+            type_url:
+              "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+            value: value
+          }
+        } ->
+          Envoy.Extensions.Filters.Network.HttpConnectionManager.V3.HttpConnectionManager.decode(
+            value
+          ).route_specifier
+
+        _ ->
+          fail({:unsupported_listener, service})
+      end
+
+    {route, state} =
+      case route do
+        {:rds, rds} ->
+          require_ads(rds.config_source)
+          resource(state, :route_configuration, rds.route_config_name)
+
+        {:route_config, config} ->
+          {config, state}
+
+        _ ->
+          fail({:unsupported_route, service})
+      end
+
+    cluster_names =
+      case route.virtual_hosts do
+        [%{routes: [%{action: {:route, action}}]}] ->
+          case action.cluster_specifier do
+            {:cluster, name} ->
+              [name]
+
+            {:weighted_clusters, weighted} ->
+              for cluster <- weighted.clusters, weight(cluster.weight) > 0, do: cluster.name
+
+            _ ->
+              fail({:unsupported_route, service})
+          end
+
+        _ ->
+          fail({:ambiguous_routes, service})
+      end
+
+    Enum.map_reduce(cluster_names, state, &cluster_addresses/2)
+  end
+
+  defp cluster_addresses(name, state) do
+    {cluster, state} = resource(state, :cluster, name)
+
+    {assignment, state} =
+      case cluster.cluster_discovery_type do
+        {:type, :EDS} ->
+          config = cluster.eds_cluster_config
+          if is_nil(config), do: fail({:missing_eds_config, name})
+          require_ads(config.eds_config)
+
+          resource(
+            state,
+            :cluster_load_assignment,
+            if(config.service_name == "", do: name, else: config.service_name)
+          )
+
+        type when type in [nil, {:type, :STATIC}] ->
+          if is_nil(cluster.load_assignment), do: fail({:missing_load_assignment, name})
+          {cluster.load_assignment, state}
+
+        _ ->
+          fail({:unsupported_cluster_type, name})
+      end
+
+    {addresses(assignment), state}
+  end
+
+  # A URL selects a single ADS control plane; do not silently ignore references to other servers.
+  defp require_ads(%{config_source_specifier: {:ads, _}}), do: :ok
+  defp require_ads(_), do: fail(:unsupported_config_source)
+
+  defp addresses(assignment) do
+    localities =
+      Enum.filter(assignment.endpoints, fn locality ->
+        weight(locality.load_balancing_weight) > 0 and
+          Enum.any?(locality.lb_endpoints, &healthy?/1)
+      end)
+
+    case localities do
+      [] ->
+        []
 
       _ ->
-        :ok
+        priority = localities |> Enum.map(& &1.priority) |> Enum.min()
+        localities = Enum.filter(localities, &(&1.priority == priority))
+        max_weight = localities |> Enum.map(&weight(&1.load_balancing_weight)) |> Enum.max()
+
+        for locality <- localities,
+            weight(locality.load_balancing_weight) == max_weight,
+            endpoint <- locality.lb_endpoints,
+            healthy?(endpoint) do
+          case endpoint.host_identifier do
+            {:endpoint,
+             %{
+               address: %{
+                 address:
+                   {:socket_address,
+                    %{address: host, port_specifier: {:port_value, port}, protocol: :TCP}}
+               }
+             }} ->
+              {host, port}
+
+            _ ->
+              fail(:unsupported_endpoint_address)
+          end
+        end
     end
-
-    {:ok, reply_enum} = res
-
-    Enum.find(reply_enum, fn
-      {:ok, reply} -> reply != [] && reply != nil
-      _ -> false
-    end)
   end
 
-  defp update_state_from_response(state, response) do
-    state
-    |> update_version_from_response(response)
-    |> update_resources_from_response(response)
-  end
+  defp healthy?(endpoint),
+    do:
+      endpoint.health_status in [:UNKNOWN, :HEALTHY] and
+        weight(endpoint.load_balancing_weight) > 0
 
-  defp update_resources_from_response(state, response) do
-    resources_from_response =
-      response
-      |> GRPC.XDS.ADS.Response.parse_response()
-
-    updated_typed_resources =
-      state
-      |> Map.get(:resources)
-      |> Map.merge(resources_from_response)
-
-    Map.put(state, :resources, updated_typed_resources)
-  end
-
-  defp update_version_from_response(state, response) do
-    Map.put(state, :version, Map.get(response, :version_info))
-  end
+  defp weight(nil), do: 1
+  defp weight(%{value: value}), do: value
+  defp fail(reason), do: throw({:xds_error, reason})
 end
