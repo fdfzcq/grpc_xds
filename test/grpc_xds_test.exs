@@ -152,6 +152,39 @@ defmodule GrpcXdsTest.ControlPlane do
     }
   end
 
+  defp adjust(:listener, listener, :inline_static) do
+    manager = %Envoy.Extensions.Filters.Network.HttpConnectionManager.V3.HttpConnectionManager{
+      route_specifier: {:route_config, resource(:route_configuration, ["routes"])}
+    }
+
+    %{listener | api_listener: %{listener.api_listener | api_listener: pack(manager)}}
+  end
+
+  defp adjust(:cluster, cluster, :inline_static) do
+    %{
+      cluster
+      | cluster_discovery_type: {:type, :STATIC},
+        eds_cluster_config: nil,
+        load_assignment: resource(:cluster_load_assignment, ["endpoints"])
+    }
+  end
+
+  defp adjust(:cluster_load_assignment, assignment, :unweighted) do
+    endpoints = Enum.map(assignment.endpoints, &%{&1 | load_balancing_weight: nil})
+    %{assignment | endpoints: endpoints}
+  end
+
+  defp adjust(:cluster_load_assignment, assignment, :unhealthy) do
+    [low, high] = assignment.endpoints
+    high = %{high | lb_endpoints: Enum.map(high.lb_endpoints, &%{&1 | health_status: :UNHEALTHY})}
+    %{assignment | endpoints: [low, high]}
+  end
+
+  defp adjust(:cluster_load_assignment, assignment, :priority) do
+    [low, high] = assignment.endpoints
+    %{assignment | endpoints: [low, %{high | priority: 1}]}
+  end
+
   defp adjust(:route_configuration, config, :ambiguous) do
     %{config | virtual_hosts: config.virtual_hosts ++ config.virtual_hosts}
   end
@@ -294,6 +327,30 @@ defmodule GrpcXdsTest do
              GRPC.XDS.ADS.get_service_resource("https://localhost:#{port}", "service",
                connect_options: [cred: client_cred]
              )
+  end
+
+  test "supports inline routes and static cluster assignments", %{url: url} do
+    Application.put_env(:grpc_xds, :test_mode, :inline_static)
+
+    assert [{"127.0.0.1", 8080}, {"127.0.0.2", 8081}] =
+             GRPC.XDS.ADS.get_service_resource(url, "service")
+
+    refute_receive {:request, _, :route_configuration, _}
+    refute_receive {:request, _, :cluster_load_assignment, _}
+  end
+
+  test "handles omitted locality weights", %{url: url} do
+    Application.put_env(:grpc_xds, :test_mode, :unweighted)
+
+    assert [{"127.0.0.3", 9000}, {"127.0.0.1", 8080}, {"127.0.0.2", 8081}] =
+             GRPC.XDS.ADS.get_service_resource(url, "service")
+  end
+
+  test "filters unhealthy endpoints and honors priority before locality weight", %{url: url} do
+    for mode <- [:unhealthy, :priority] do
+      Application.put_env(:grpc_xds, :test_mode, mode)
+      assert [{"127.0.0.3", 9000}] = GRPC.XDS.ADS.get_service_resource(url, "service")
+    end
   end
 
   test "returns unsupported routing explicitly", %{url: url} do

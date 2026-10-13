@@ -190,6 +190,9 @@ defmodule GRPC.XDS.ADS.Stream do
           require_ads(rds.config_source)
           resource(state, :route_configuration, rds.route_config_name)
 
+        {:route_config, config} ->
+          {config, state}
+
         _ ->
           fail({:unsupported_route, service})
       end
@@ -200,6 +203,9 @@ defmodule GRPC.XDS.ADS.Stream do
           case action.cluster_specifier do
             {:cluster, name} ->
               [name]
+
+            {:weighted_clusters, weighted} ->
+              for cluster <- weighted.clusters, weight(cluster.weight) > 0, do: cluster.name
 
             _ ->
               fail({:unsupported_route, service})
@@ -228,6 +234,10 @@ defmodule GRPC.XDS.ADS.Stream do
             if(config.service_name == "", do: name, else: config.service_name)
           )
 
+        type when type in [nil, {:type, :STATIC}] ->
+          if is_nil(cluster.load_assignment), do: fail({:missing_load_assignment, name})
+          {cluster.load_assignment, state}
+
         _ ->
           fail({:unsupported_cluster_type, name})
       end
@@ -240,14 +250,25 @@ defmodule GRPC.XDS.ADS.Stream do
   defp require_ads(_), do: fail(:unsupported_config_source)
 
   defp addresses(assignment) do
-    case assignment.endpoints do
+    localities =
+      Enum.filter(assignment.endpoints, fn locality ->
+        weight(locality.load_balancing_weight) > 0 and
+          Enum.any?(locality.lb_endpoints, &healthy?/1)
+      end)
+
+    case localities do
       [] ->
         []
 
-      localities ->
-        locality = Enum.max_by(localities, &weight(&1.load_balancing_weight))
+      _ ->
+        priority = localities |> Enum.map(& &1.priority) |> Enum.min()
+        localities = Enum.filter(localities, &(&1.priority == priority))
+        max_weight = localities |> Enum.map(&weight(&1.load_balancing_weight)) |> Enum.max()
 
-        Enum.map(locality.lb_endpoints, fn endpoint ->
+        for locality <- localities,
+            weight(locality.load_balancing_weight) == max_weight,
+            endpoint <- locality.lb_endpoints,
+            healthy?(endpoint) do
           case endpoint.host_identifier do
             {:endpoint,
              %{
@@ -262,9 +283,14 @@ defmodule GRPC.XDS.ADS.Stream do
             _ ->
               fail(:unsupported_endpoint_address)
           end
-        end)
+        end
     end
   end
+
+  defp healthy?(endpoint),
+    do:
+      endpoint.health_status in [:UNKNOWN, :HEALTHY] and
+        weight(endpoint.load_balancing_weight) > 0
 
   defp weight(nil), do: 1
   defp weight(%{value: value}), do: value

@@ -51,9 +51,9 @@ GRPC.XDS.ADS.lookup_service_addresses("my-service")
 
 The previous `control_plane_address` setting and `get_service_resource(url, service, opts \\ [])` entry point remain supported. `get_resources(channel, names, opts \\ [])` accepts an existing channel and leaves channel ownership with the caller.
 
-Each lookup uses one bidirectional ADS stream, tracks versions and nonces per resource type, acknowledges decoded responses, and closes the stream and owned connection when finished. It follows Listener → RouteConfiguration → Cluster → ClusterLoadAssignment, honoring the cluster's EDS service name.
+Each lookup uses one bidirectional ADS stream, tracks versions and nonces per resource type, acknowledges decoded responses, and closes the stream and owned connection when finished. It follows Listener → RouteConfiguration → Cluster → ClusterLoadAssignment, honoring the cluster's EDS service name. Inline route configurations and static cluster load assignments are also supported.
 
-The address helper accepts an API listener with an HTTP connection manager, RDS, a single virtual host/route pointing to a direct cluster, and an EDS cluster. RDS and EDS config sources must point to ADS on the supplied control plane. It returns TCP endpoints from the highest-weight locality, treating an omitted weight as one. Empty endpoint sets return `[]`; unsupported routing, listener, or cluster shapes return an explicit error. Inline routes, static/weighted clusters, health filtering, and priority selection are not supported yet.
+The address helper accepts an API listener with an HTTP connection manager and a single virtual host/route, referencing a direct cluster or weighted clusters. RDS and EDS config sources must point to ADS on the supplied control plane. It returns healthy (or unspecified-health) TCP endpoints from the lowest available priority and highest-weight localities, treating omitted weights as one. It returns all eligible addresses across nonzero weighted clusters; it does not implement traffic balancing or route matching. Empty endpoint sets return `[]`; unsupported routing, listener, or cluster shapes return an explicit error.
 
 For control planes with a different resource graph, fetch named resources directly:
 
