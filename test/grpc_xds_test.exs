@@ -438,3 +438,104 @@ defmodule GrpcXdsTest do
              {:error, :no_control_plane_address_set}
   end
 end
+
+defmodule GrpcXdsMtlsTest do
+  use ExUnit.Case, async: false
+
+  @moduletag capture_log: true
+  @server GrpcXdsTest.ControlPlane
+  @fixtures Path.expand("fixtures/mtls", __DIR__)
+
+  setup do
+    previous = Application.get_all_env(:grpc_xds)
+    for {key, _} <- previous, do: Application.delete_env(:grpc_xds, key)
+    Application.put_env(:grpc_xds, :test_observer, self())
+
+    on_exit(fn ->
+      GRPC.Server.stop(@server)
+
+      for {key, _} <- Application.get_all_env(:grpc_xds),
+          do: Application.delete_env(:grpc_xds, key)
+
+      for {key, value} <- previous, do: Application.put_env(:grpc_xds, key, value)
+    end)
+
+    :ok
+  end
+
+  test "discovers over mTLS, verifying a DNS identity while connecting to an IP" do
+    port = start_server()
+    assert [{"127.0.0.1", 8080}, {"127.0.0.2", 8081}] = lookup(port, client_options())
+    assert_receive {:stream, _, _}
+  end
+
+  test "rejects missing, untrusted, and expired client certificates" do
+    port = start_server()
+
+    for identity <- [nil, "untrusted-client", "expired-client"] do
+      assert {:error, _} = lookup(port, client_options(identity))
+      refute_receive {:stream, _, _}
+    end
+  end
+
+  test "rejects an untrusted server CA" do
+    port = start_server()
+    options = Keyword.put(client_options(), :cacertfile, fixture("untrusted-ca.pem"))
+    assert {:error, _} = lookup(port, options)
+    refute_receive {:stream, _, _}
+  end
+
+  test "rejects the wrong server identity even when its CA is trusted" do
+    port = start_server()
+    options = Keyword.put(client_options(), :server_name_indication, ~c"wrong-service.test")
+    assert {:error, _} = lookup(port, options)
+    refute_receive {:stream, _, _}
+  end
+
+  test "rejects an expired server certificate" do
+    port = start_server("expired-server")
+    assert {:error, _} = lookup(port, client_options())
+    refute_receive {:stream, _, _}
+  end
+
+  defp start_server(identity \\ "server") do
+    cred =
+      GRPC.Credential.new(
+        ssl: [
+          cacertfile: fixture("trusted-ca.pem"),
+          certfile: fixture("#{identity}-cert.pem"),
+          keyfile: fixture("#{identity}-key.pem"),
+          verify: :verify_peer,
+          fail_if_no_peer_cert: true
+        ]
+      )
+
+    {:ok, _, port} = GRPC.Server.start(@server, 0, adapter_opts: [cred: cred])
+    port
+  end
+
+  defp client_options(identity \\ "client") do
+    options = [
+      cacertfile: fixture("trusted-ca.pem"),
+      verify: :verify_peer,
+      server_name_indication: ~c"control-plane.test",
+      customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+    ]
+
+    if identity do
+      options ++
+        [certfile: fixture("#{identity}-cert.pem"), keyfile: fixture("#{identity}-key.pem")]
+    else
+      options
+    end
+  end
+
+  defp lookup(port, ssl) do
+    GRPC.XDS.ADS.lookup_service_addresses("https://127.0.0.1:#{port}", "service",
+      timeout: 1_000,
+      connect_options: [cred: GRPC.Credential.new(ssl: ssl), connect_timeout: 1_000]
+    )
+  end
+
+  defp fixture(name), do: Path.join(@fixtures, name)
+end
